@@ -8,6 +8,11 @@ letter. Every claim in those documents is checked against evidence you supplied,
 nothing in them falls apart when an interviewer asks about it. You review the result,
 and you are the one who presses send.
 
+> ### Not technical? Start here
+> **[Easy set-up guide for non-technical people](START-HERE-EASY-SETUP.md)**: no code to
+> type. You install one program, copy two messages into it, and click Allow. It does
+> the rest.
+
 It runs inside the AI coding agent you may already pay for (**Claude Code or Codex**), on
 your own computer. There is no website to sign up for and no server holding your data.
 
@@ -123,30 +128,9 @@ run `claude` (Claude Code) or `codex` (Codex), or open the folder in the agent's
 **3. In the chat, say "set me up".** It starts lite or standard setup (whichever the
 installer saved; if none, it asks your plan first) and asks for your CV.
 
-**Never used a terminal? Let Codex do step 1.** The full walkthrough, written to send to
-a friend, is [CODEX-QUICKSTART.md](CODEX-QUICKSTART.md). In short: install the Codex app from
-[chatgpt.com/codex](https://chatgpt.com/codex) and sign in, create an empty folder, open
-it in Codex (allow access if asked), and send this:
-
-```text
-Set up the Job Search Agent Harness in this folder. I'm not technical: do every step
-you can yourself, and tell me in plain words when I need to click or type something.
-
-1. Download https://github.com/WilliamEbong/job-search-agent-harness into this folder
-   itself, not a subfolder. Use git if it is installed; otherwise download the ZIP and
-   unpack it here.
-2. Run `python harness_setup.py --yes` here. If Python is missing, install it first.
-3. For anything the installer reports MISSING, install it with the command it prints,
-   then run the installer again. Repeat until it says all required prerequisites are
-   in place.
-4. If something needs my computer password or a window I must click, tell me exactly
-   what to do. If a program you just installed is not found, tell me to restart Codex.
-5. When everything is ready, tell me to start a new chat in this folder and say
-   "set me up".
-```
-
-Allow its requests to download and install as it works. When it is done, start a new chat
-in the same folder and say "set me up".
+**Never used a terminal?** Follow the
+[easy set-up guide](START-HERE-EASY-SETUP.md) instead. It is written to send to a friend:
+ChatGPT (Codex) or Claude downloads and installs everything for them.
 
 About the installer:
 
