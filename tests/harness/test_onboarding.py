@@ -1,23 +1,9 @@
-"""Schema and contract tests for the onboarding artefacts (P3).
+"""Schema tests for the onboarding artefacts (P3).
 
-Two kinds of test live here.
-
-**Schema tests** parse the three shipped `*.example.yaml` files and assert the
-shape `/setup-harness`, `/scrape` and `harness/fact_check.py` actually rely on.
-They exist because these files are simultaneously documentation and fixtures: a
+These parse the three shipped `*.example.yaml` files and assert the shape
+`/setup-harness`, `/scrape` and `harness/fact_check.py` actually rely on. They
+exist because these files are simultaneously documentation and fixtures, so a
 typo in the example is a typo in every register a user builds from it.
-
-**Contract tests** assert that a command document still states the behaviour the
-plan requires of it. They are deliberately narrow, they check that a promise is
-present, not that prose is worded a particular way. The promises pinned here are
-the ones whose loss would be invisible in review but would change what the
-system does to a user:
-
-* the CV interview tells the user how to speed it up and how to end it
-  (plan-M 34), a control the user is never told about does not exist;
-* `/career-review` never writes to the register (plan-M 35);
-* the companies list is explicitly a living list, and researched entries need
-  approval (plan-M 36).
 """
 
 from __future__ import annotations
@@ -185,7 +171,7 @@ class PreferencesExample(unittest.TestCase):
         self.assertTrue(self.prefs["remote_tradeoffs"]["asked"])
 
     def test_hard_skips_preserve_the_mandatory_distinction(self):
-        """plan-M 15: a skill listed as *preferred* must not trigger a skip."""
+        """A skill listed as *preferred* must not trigger a skip."""
         self.assertTrue(self.prefs["hard_skips"])
         for skip in self.prefs["hard_skips"]:
             self.assertIn("mandatory_only", skip, skip)

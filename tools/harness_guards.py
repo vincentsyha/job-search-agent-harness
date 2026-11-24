@@ -77,7 +77,7 @@ FORBIDDEN_TRACKED_PREFIXES = [
     "documents/portfolio/",
 ]
 
-# The only candidate-shaped content allowed to ship (plan-D rule 4).
+# The only candidate-shaped content allowed to ship.
 ALLOWED_CANDIDATE_CONTENT = [
     "evidence/register.example.yaml",
     "examples/preferences.example.yaml",

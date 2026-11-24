@@ -1,17 +1,18 @@
-# CI for the framework itself: lint, the Python suites, the guards, the
-# shipped portal CLIs, and a LaTeX smoke compile.
+# CI for the framework itself: LaTeX smoke compiles, skill/command lint,
+# the Python suites and guards, CLI typechecks, and (upstream only)
+# placeholder integrity.
 #
 # Fork-friendly by design: forks personalize CLAUDE.md, the skill files, and
-# cv/main_example.tex, so the placeholder-integrity job and the exact
-# page-count/content assertions run only on the upstream template repo.
+# cv/main_example.tex via /setup, so the placeholder-integrity job and the
+# exact page-count/content assertions run only on the upstream template repo.
 # Compile success, lint correctness, and an extractable PDF text layer are
 # asserted everywhere.
 #
 # Deliberately NOT here: live smoke tests of the job-portal CLIs. They hit
 # real portals (network-flaky, and the linkedin-search skill is personal-use
 # only per its own ToS warning - CI-automated requests would violate that).
-# CI runs the checked-in fixture/mock suites only; live portal testing stays a
-# local, on-demand step.
+# CI runs typechecks and the checked-in fixture/mock test suites only; live
+# portal testing stays a local, on-demand step.
 #
 # Security posture: this template ships pre-approved Claude Code permissions
 # and CLI code that every fork user executes, so the security-guards step
@@ -38,10 +39,6 @@ permissions:
   contents: read
 
 jobs:
-  # One job for everything CPU-cheap, so a push gets a single pass/fail for
-  # the Python side and pays checkout plus setup-python once instead of six
-  # times. A failing step skips the ones after it; the step name in the log
-  # says which check broke.
   checks:
     name: Lint, tests, guards
     runs-on: ubuntu-latest
@@ -70,9 +67,8 @@ jobs:
         if: github.repository == 'MadsLorentzen/ai-job-search'
         run: uv run python tools/check_framework_version.py
 
-  # The LaTeX job is 61 of the 80 seconds a full run used to take: almost all
-  # of it is pulling the texlive container, not compiling. It only needs to
-  # run when a CV template, a font, or the PDF checker changes.
+  # 61 of the 80 seconds a full run used to take was pulling the texlive
+  # container. Compile only when a template, font or the PDF checker moves.
   changes:
     name: Detect LaTeX-relevant changes
     runs-on: ubuntu-latest
@@ -91,8 +87,7 @@ jobs:
             base="${{ github.event.before }}"
             head="${{ github.sha }}"
           fi
-          # An unknown base (first push, force-push, manual run) means we cannot
-          # tell, so compile rather than skip.
+          # Unknown base means we cannot tell, so compile rather than skip.
           if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
             echo "latex=true" >> "$GITHUB_OUTPUT"
             exit 0
@@ -172,9 +167,8 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - run: bun install
         working-directory: .agents/skills/${{ matrix.tool }}/cli
-      # The CLIs set `"lib": ["ESNext"]`, which drops the DOM lib that the
-      # Response and URL globals come from. Bun's types used to supply them;
-      # @types/bun no longer does, so every CLI that names `lib` must add DOM.
+      # Response and URL come from the DOM lib, which `"lib": ["ESNext"]` drops.
+      # @types/bun used to supply them and no longer does.
       - run: bun run typecheck
         working-directory: .agents/skills/${{ matrix.tool }}/cli
       - name: Run fixture/mock tests when present

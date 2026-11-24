@@ -1,18 +1,15 @@
-"""Tests for the two privacy guards, and for the continuity layer's contracts.
+"""Tests for the two privacy guards and the telemetry mirror.
 
-The guards are deliberately two separate tools with different failure modes,
-and these tests pin that split:
+The guards are deliberately two separate tools with different failure modes:
 
 * `tools/harness_guards.py` is structural, ignore rules present, nothing
   personal tracked. It cannot see a phone number pasted into a README.
 * `harness/privacy_sweep.py` is content, it scans what files actually say. It
   cannot see a deleted gitignore rule.
 
-Merging them would lose one of those, which is why `test_the_two_guards_check_
-different_things` exists.
-
-The sweep's allow-list is the part most likely to be loosened under pressure, so
-several tests assert it still catches the things it is for.
+Merging them would lose one of those. The sweep's allow-list is the part most
+likely to be loosened under pressure, so several tests assert it still catches
+the things it is for.
 """
 
 from __future__ import annotations
@@ -56,12 +53,7 @@ class SweepStillCatchesRealData(unittest.TestCase):
     """The allow-list must not have become an everything-list."""
 
     def scan_text(self, text: str) -> list:
-        """Run the production matcher over one blob of text.
-
-        This used to re-implement the loop, which meant it could stay green
-        after `scan()` stopped passing the label to `is_allowed`. Calling
-        `find_hits`, the same function `scan()` uses, removes that gap.
-        """
+        """Run the production matcher, so a change to `scan()` cannot slip past."""
         return [(n, label, value) for n, label, value, _ in privacy_sweep.find_hits(text)]
 
     def test_a_placeholder_on_the_line_does_not_excuse_a_real_email(self):

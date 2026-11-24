@@ -1,14 +1,11 @@
-"""Contract tests for the discovery layer (P5): scopes, modes, cost posture.
+"""Contract tests for the discovery layer (P5): scopes and modes.
 
 The properties pinned here are the ones whose loss is invisible in a passing
 run but changes what the user is told:
 
-* all five scopes exist and are named (plan-M 38);
-* an unreadable source is reported as `unverified`, never as "no openings"
-  (plan-M 37), the failure that silently removes an employer from a search;
+* all five scopes exist and are named;
 * zero-result runs are still logged, because a broken CLI and a quiet market
-  produce identical output without the log;
-* the cost posture is printed *before* the run and invents no token arithmetic.
+  produce identical output without the log.
 """
 
 from __future__ import annotations

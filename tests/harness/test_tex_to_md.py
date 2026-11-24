@@ -1,14 +1,9 @@
-"""Tests for the P4 apply overlay: intake ladder, apply wrapper, .md mirror.
+"""Tests for harness/tex_to_md.py, the .md mirror of a generated document.
 
-`harness/tex_to_md.py` is exercised for real. The two command/skill documents
-are checked for the promises whose loss would change behaviour silently, the
-ones where a missing sentence produces a package that looks fine and is not:
-
-* the humanizer pass is followed by a re-ground (a rewrite that strengthens a
-  claim past its evidence reads *better*, so nothing catches it by eye);
-* posting content is untrusted, including links inside it;
-* a `mandatory_only` hard skip does not fire on a "preferred" line;
-* the `.md` mirror is generated, never hand-written.
+The mirror is generated, never hand-written, so that the .md and the .tex
+cannot drift apart. These pin the identity it takes from the register, the
+loud failure when the register is missing, and the case that used to lose
+text: a profile statement wrapped in a size macro.
 """
 
 from __future__ import annotations

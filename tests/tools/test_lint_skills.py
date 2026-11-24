@@ -26,8 +26,8 @@ class LinterRepoFixture(unittest.TestCase):
         tools = self.root / "tools"
         tools.mkdir()
         shutil.copy(LINTER_SCRIPT, tools / "lint_skills.py")
-        # The Python-test CI job does not install PyYAML; the separate lint job
-        # does. These settings-focused tests only need a valid frontmatter map.
+        # The fixture tree has no PyYAML, so stub the import. These tests only
+        # need a valid frontmatter map.
         (tools / "yaml.py").write_text(
             "class YAMLError(Exception):\n"
             "    pass\n\n"

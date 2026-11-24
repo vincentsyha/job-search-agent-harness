@@ -15,10 +15,9 @@ dev = ["pytest>=8", "ruff>=0.6"]
 [tool.uv]
 package = false
 
-# `harness/` and `tools/` are import roots, not packages: their modules import
-# each other by bare name and are also run directly as scripts, where Python
-# already puts the script's directory on sys.path. Declaring the roots once
-# here replaces the sys.path.insert line each module used to carry.
+# `harness/` and `tools/` are import roots, not packages: modules import each
+# other by bare name and run as scripts, where Python already adds the script's
+# directory to sys.path. Declared once here instead of 30 sys.path.insert lines.
 [tool.pytest.ini_options]
 pythonpath = ["harness", "tools", "."]
 testpaths = ["tests"]
@@ -28,6 +27,5 @@ target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]
-# Pinned so a local ruff and CI agree. Broader sets are a later decision, not a
-# hidden default: without this, a global ruff config silently changes the result.
+# Pinned so local ruff and CI agree; a global ruff config would change the result.
 select = ["E4", "E7", "E9", "F", "I", "RUF100"]

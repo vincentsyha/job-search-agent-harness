@@ -89,9 +89,8 @@ class TrackerRowWriting(unittest.TestCase):
         result = tracker_row.append(
             {"company": "Acme", "role": "Analyst"}, self.csv_path)
         self.assertEqual("created", result)
-        # Spelled out, not read from tracker_row.HEADER: the column set is the
-        # contract the workbook, the archiver and /outcome all depend on, so a
-        # wholesale rename must fail here rather than agree with itself.
+        # Spelled out, not read from tracker_row.HEADER, so a wholesale column
+        # rename fails here instead of agreeing with itself.
         self.assertEqual(
             [
                 "date", "company", "sector", "role", "role_type", "channel",

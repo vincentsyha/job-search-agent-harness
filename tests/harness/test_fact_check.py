@@ -127,8 +127,6 @@ class BadFixture(unittest.TestCase):
 
 
 class UnsupportedMetric(unittest.TestCase):
-    """plan-M test 16."""
-
     def test_planted_numeral_not_in_register_is_blocked(self):
         with WriteDraft("The programme reached 4,912 households last year.\n") as draft:
             code, out = run_checker(draft)
@@ -156,8 +154,6 @@ class UnsupportedMetric(unittest.TestCase):
 
 
 class UnsupportedCredential(unittest.TestCase):
-    """plan-M test 17, both halves."""
-
     def test_unregistered_credential_is_blocked(self):
         with WriteDraft("Holder of the PMP designation.\n") as draft:
             code, out = run_checker(draft)
