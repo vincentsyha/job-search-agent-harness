@@ -18,7 +18,7 @@ description: >
   social worker job denmark, occupation search denmark, esco occupation, job deadline,
   ansøgningsfrist, søg efter job, full time job denmark, part time job denmark.
 context: fork
-enabled: false  # Denmark board, disabled: this fork searches Canada. /scrape health <name> still probes it
+enabled: false  # Denmark board, disabled: this fork searches Canada. Re-run setup after enabling.
 allowed-tools: Bash(bun run .agents/skills/jobnet-search/cli/src/cli.ts *)
 ---
 
