@@ -278,7 +278,7 @@ class PlatformHints(unittest.TestCase):
              mock.patch.object(setup, "find_tool", return_value=(None, "")):
             checks = [*setup.check_tex(), setup.check_poppler()]
         missing = [c for c in checks if c.status == setup.MISSING]
-        self.assertTrue(missing, "both TeX and poppler should be reported missing")
+        self.assertTrue(missing, "TeX and poppler should both be reported missing")
         for check in missing:
             self.assertNotIn("winget", check.fix)
             self.assertNotIn("apt install", check.fix)
