@@ -258,6 +258,32 @@ class FirecrawlLocal(unittest.TestCase):
         self.assertIn("0.4.1", check.detail)
 
 
+class PlatformHints(unittest.TestCase):
+    """A fix line names a command that exists on the machine printing it."""
+
+    def hint(self, os_name, platform):
+        with mock.patch.object(setup.os, "name", os_name), \
+             mock.patch.object(setup.sys, "platform", platform):
+            return setup.platform_hint("winget x", "brew x", "apt x")
+
+    def test_each_platform_gets_its_own_command(self):
+        self.assertEqual(self.hint("nt", "win32"), "winget x")
+        self.assertEqual(self.hint("posix", "darwin"), "brew x")
+        self.assertEqual(self.hint("posix", "linux"), "apt x")
+
+    def test_macos_advice_offers_no_windows_or_debian_command(self):
+        with mock.patch.object(setup.os, "name", "posix"), \
+             mock.patch.object(setup.sys, "platform", "darwin"), \
+             mock.patch.object(setup, "find_tool", return_value=(None, "")):
+            checks = [*setup.check_tex(), setup.check_poppler()]
+        missing = [c for c in checks if c.status == setup.MISSING]
+        self.assertTrue(missing, "both TeX and poppler should be reported missing")
+        for check in missing:
+            self.assertNotIn("winget", check.fix)
+            self.assertNotIn("apt install", check.fix)
+            self.assertIn("brew", check.fix)
+
+
 class DoctorTable(unittest.TestCase):
     def test_exit_code_counts_only_required_failures(self):
         checks = [

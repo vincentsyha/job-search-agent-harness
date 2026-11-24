@@ -54,6 +54,14 @@ Edge, then run this once in Terminal from the Candor folder:
 python3 harness_setup.py
 ```
 
+It prints the macOS command for anything missing. The two that matter are the PDF
+builders and the PDF checks:
+
+```
+brew install --cask mactex-no-gui    # lualatex and xelatex, about 5 GB
+brew install poppler                 # pdftotext and pdfinfo
+```
+
 After that, double-click **Candor.command** in the folder to open it, or run
 `./Candor.command`. A Terminal window stays open behind the app while it runs, and
 closing the Candor window stops it, the same as on Windows.

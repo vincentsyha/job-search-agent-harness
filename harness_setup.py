@@ -344,8 +344,11 @@ def check_poppler() -> Check:
             "poppler",
             MISSING,
             f"missing: {', '.join(missing)}{hint}",
-            "winget install --id oschwartz10612.Poppler   "
-            "(or: apt install poppler-utils)",
+            platform_hint(
+                "winget install --id oschwartz10612.Poppler",
+                "brew install poppler",
+                "apt install poppler-utils",
+            ),
         )
     return Check("poppler", OK, "pdftotext + pdfinfo")
 
@@ -354,6 +357,20 @@ TEST_COMPILES = (
     ("lualatex", Path("cv"), "main_example.tex", "CV template"),
     ("xelatex", Path("cover_letters"), "cover_example.tex", "cover-letter template"),
 )
+
+
+def platform_hint(windows: str, macos: str, linux: str) -> str:
+    """The install command for the machine this is running on.
+
+    A fix line the user cannot run is worse than none: `winget` does not exist
+    on macOS or on Debian, and printing it there sends them looking for a
+    command that will never work.
+    """
+    if os.name == "nt":
+        return windows
+    if sys.platform == "darwin":
+        return macos
+    return linux
 
 
 def check_tex(quick: bool = False) -> list[Check]:
@@ -370,8 +387,16 @@ def check_tex(quick: bool = False) -> list[Check]:
         if not path:
             checks.append(Check(
                 engine, MISSING, "not on PATH",
-                "Install MiKTeX (winget install --id MiKTeX.MiKTeX) or TeX Live. "
-                "Both engines are needed: lualatex for CVs, xelatex for letters.",
+                "Both engines are needed: lualatex for CVs, xelatex for letters. "
+                + platform_hint(
+                    "Install MiKTeX: winget install --id MiKTeX.MiKTeX",
+                    "Install TeX with: brew install --cask mactex-no-gui "
+                    "(about 5 GB, and every package is there). BasicTeX is "
+                    "100 MB but ships without the packages the templates use, "
+                    "and you then install each one by hand.",
+                    "Install TeX Live: apt install texlive-latex-extra "
+                    "texlive-luatex texlive-xetex",
+                ),
             ))
             continue
         if stale:
