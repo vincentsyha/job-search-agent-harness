@@ -30,7 +30,7 @@ class LauncherTest(unittest.TestCase):
         self.assertIsInstance(launcher.find_browser(), (str, type(None)))
 
     def test_mac_helium_is_used_when_it_is_the_only_browser_installed(self):
-        """Helium is Chromium, so it takes --app like Chrome and Edge do."""
+        """Helium is Chromium, so it takes --app."""
         with unittest.mock.patch.object(launcher.Path, "is_file",
                                         lambda p: p.name == "Helium"), \
                 unittest.mock.patch.object(launcher, "_default_browser",

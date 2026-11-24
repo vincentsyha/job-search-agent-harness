@@ -45,8 +45,7 @@ def find_browser():
     address bar: Edge, Chrome or Helium.
 
     The person's default browser wins when it is one of those; otherwise Edge, which
-    every Windows 10/11 PC has. A Mac with none of the three falls through to
-    `webbrowser.open` and gets an ordinary tab."""
+    every Windows 10/11 PC has."""
     order = ('chrome', 'edge') if _default_browser() == 'chrome' else ('edge', 'chrome')
     roots = [os.environ.get(name) for name in ('ProgramFiles(x86)', 'ProgramFiles', 'LOCALAPPDATA')]
     paths = [Path(root, _PROGRAMS[browser]) for browser in order for root in roots if root]
