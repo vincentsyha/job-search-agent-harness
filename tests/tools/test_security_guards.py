@@ -6,10 +6,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import security_guards
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 GUARD_SCRIPT = REPO_ROOT / "tools" / "security_guards.py"
-
-import security_guards  # noqa: E402  (imported for its allowlist constants)
 
 
 def run_guards(root: Path) -> subprocess.CompletedProcess:

@@ -7,6 +7,7 @@ Also ensures all framework files have a valid 'framework_version' frontmatter ke
 """
 
 from __future__ import annotations
+
 import os
 import re
 import subprocess

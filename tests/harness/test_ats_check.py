@@ -21,11 +21,11 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import ats_check
+
 from tests.support import text_pdf
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-
-import ats_check
 
 
 # Contact details are the reserved fiction ranges privacy_sweep allows.

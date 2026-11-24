@@ -20,7 +20,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent.parent
 COMMANDS = ROOT / ".claude" / "commands"
 SKILLS = ROOT / ".claude" / "skills"
@@ -96,7 +95,7 @@ class TexToMdMirror(unittest.TestCase):
         out = tex_to_md.convert_cv("\\small{Analyst who owns the data,\n"
                                    "from field collection to the report.}\n")
         self.assertEqual(["Analyst who owns the data,",
-                          "from field collection to the report."], [l for l in out if l])
+                          "from field collection to the report."], [line for line in out if line])
 
 
 if __name__ == "__main__":

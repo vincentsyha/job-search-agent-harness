@@ -23,9 +23,10 @@ import unittest
 from datetime import date
 from pathlib import Path
 
+import today as today_mod
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 
-import today as today_mod  # noqa: E402
 
 TRACKER_HEADER = ["date", "company", "sector", "role", "role_type", "channel",
                   "status", "contact_person", "fit_rating", "notes", "cv_file",

@@ -6,7 +6,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 LINTER_SCRIPT = REPO_ROOT / "tools" / "lint_skills.py"
 

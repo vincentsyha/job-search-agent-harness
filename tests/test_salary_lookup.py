@@ -9,13 +9,12 @@ from unittest import mock
 
 import salary_lookup
 from salary_lookup import (
+    collect_validation_issues,
     format_entry,
     match_score,
     search_company,
     validate_data,
-    collect_validation_issues,
 )
-
 
 # ---------------------------------------------------------------------------
 # format_entry tests (from #75 / #98)

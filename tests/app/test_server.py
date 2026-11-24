@@ -117,7 +117,8 @@ class Queue(TempRoot):
     def test_question_reply_and_history(self):
         script = self.root / "fake.py"
         script.write_text(FAKE_ENGINE, encoding="utf-8")
-        argv = lambda name, root, session="", network=False: [sys.executable, str(script)]
+        def argv(name, root, session="", network=False):
+            return [sys.executable, str(script)]
         runner = tasks.Runner(self.root)
         with mock.patch.object(engines, "argv", argv), \
                 mock.patch.object(tasks, "build_prompt", lambda *a: "PING"):

@@ -26,9 +26,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from pypdf import PdfReader
-
 import ats_check
+from pypdf import PdfReader
 
 TIMEOUT_S = 600  # a fresh MiKTeX installs packages on first use, which takes minutes
 PAGE_NUMBER = re.compile(r"^\d+\s*/\s*\d+$")

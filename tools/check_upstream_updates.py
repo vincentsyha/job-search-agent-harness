@@ -12,6 +12,7 @@ This script:
 """
 
 from __future__ import annotations
+
 import argparse
 import re
 import subprocess

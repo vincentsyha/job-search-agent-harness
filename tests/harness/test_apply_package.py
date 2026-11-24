@@ -16,19 +16,19 @@ from __future__ import annotations
 
 import contextlib
 import io
+import os
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
+
+import apply_package
+
+from tests.support import text_pdf
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 
-import os
-from unittest import mock
-
-import apply_package  # noqa: E402
-
-from tests.support import text_pdf
 
 REGISTER = ROOT / "evidence" / "register.example.yaml"
 

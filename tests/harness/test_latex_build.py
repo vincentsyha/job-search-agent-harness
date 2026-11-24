@@ -11,7 +11,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import latex_build  # noqa: E402
+import latex_build
 
 LOG = """This is LuaHBTeX, Version 1.24.0
 (./main.tex

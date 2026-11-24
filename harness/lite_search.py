@@ -40,11 +40,10 @@ import time
 from datetime import date
 from pathlib import Path
 
-import yaml
-
 import run_log
 import shortlist_row
 import tracker_row
+import yaml
 
 HARNESS_DIR = Path(__file__).resolve().parent
 ROOT = HARNESS_DIR.parent

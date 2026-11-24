@@ -25,9 +25,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-
-
-import harness_setup as setup  # noqa: E402  (the path shim above must run first)
+import harness_setup as setup
 
 
 def fake_which(available: dict[str, str]):

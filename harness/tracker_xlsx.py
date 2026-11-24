@@ -22,10 +22,10 @@ import os
 import sys
 from pathlib import Path
 
-from archive_applications import RESERVED, match_folder
 import status
 import today as today_mod
 import tracker_row
+from archive_applications import RESERVED, match_folder
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_CSV = os.path.join(ROOT, "job_search_tracker.csv")

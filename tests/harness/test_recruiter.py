@@ -21,12 +21,12 @@ import unittest
 from datetime import date
 from pathlib import Path
 
+import today as today_mod
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 COMMANDS = ROOT / ".claude" / "commands"
 
-import today as today_mod  # noqa: E402
 
 REQUIRED_KEYS = {"rank", "title", "level", "fit", "tier", "because", "gap",
                  "search_terms", "status"}

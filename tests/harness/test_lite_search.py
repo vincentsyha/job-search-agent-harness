@@ -15,19 +15,18 @@ SKILL.md, so its mistakes would be silent. The ones worth pinning:
 
 from __future__ import annotations
 
+import io
+import json
 import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parent.parent.parent
-
-import io
-import json
-import subprocess
 from unittest import mock
 
-import lite_search as ls  # noqa: E402
+import lite_search as ls
+
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 class Normalise(unittest.TestCase):

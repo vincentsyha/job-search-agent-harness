@@ -23,11 +23,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent.parent
+import rotate_backup
+import status
+import tracker_row
 
-import rotate_backup  # noqa: E402
-import status  # noqa: E402
-import tracker_row  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 class StatusVocabulary(unittest.TestCase):

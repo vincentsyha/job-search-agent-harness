@@ -18,18 +18,18 @@ import csv
 import datetime
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
 import unittest
 from pathlib import Path
 
+import archive_applications as archiver
+import tracker_xlsx
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 
-import subprocess
-
-import archive_applications as archiver  # noqa: E402
-import tracker_xlsx  # noqa: E402
 
 HEADER = ["date", "company", "sector", "role", "role_type", "channel", "status",
           "contact_person", "fit_rating", "notes", "cv_file", "cover_letter_file",
