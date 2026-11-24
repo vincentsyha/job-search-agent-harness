@@ -29,6 +29,16 @@ class LauncherTest(unittest.TestCase):
     def test_find_browser_returns_path_or_none(self):
         self.assertIsInstance(launcher.find_browser(), (str, type(None)))
 
+    def test_mac_helium_is_used_when_it_is_the_only_browser_installed(self):
+        """Helium is Chromium, so it takes --app like Chrome and Edge do."""
+        with unittest.mock.patch.object(launcher.Path, "is_file",
+                                        lambda p: p.name == "Helium"), \
+                unittest.mock.patch.object(launcher, "_default_browser",
+                                           return_value=None), \
+                unittest.mock.patch.object(launcher.shutil, "which", return_value=None):
+            self.assertEqual("/Applications/Helium.app/Contents/MacOS/Helium",
+                             launcher.find_browser())
+
     def test_probe_free_port(self):
         with socket.socket() as s:
             s.bind(('127.0.0.1', 0))

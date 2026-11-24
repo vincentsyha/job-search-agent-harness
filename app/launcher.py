@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 _CONSOLE = sys.stderr is not None
 _PROGRAMS = {'edge': 'Microsoft/Edge/Application/msedge.exe', 'chrome': 'Google/Chrome/Application/chrome.exe'}
 _MAC_APPS = ('/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-             '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+             '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+             '/Applications/Helium.app/Contents/MacOS/Helium')
 _COMMANDS = ('msedge', 'microsoft-edge', 'google-chrome', 'chromium', 'chromium-browser')
 # Open pages check in at least every 15 s (browsers slow hidden windows to about once a minute).
 # Counting checks instead of clock time means a sleeping laptop never counts as idle.
@@ -40,10 +41,12 @@ def _default_browser():
 
 
 def find_browser():
-    """Edge or Chrome, whose app mode gives Candor a window without tabs or address bar.
+    """A Chromium browser, whose app mode gives Candor a window without tabs or an
+    address bar: Edge, Chrome or Helium.
 
-    The person's default browser wins when it is one of the two; otherwise Edge, which every
-    Windows 10/11 PC has."""
+    The person's default browser wins when it is one of those; otherwise Edge, which
+    every Windows 10/11 PC has. A Mac with none of the three falls through to
+    `webbrowser.open` and gets an ordinary tab."""
     order = ('chrome', 'edge') if _default_browser() == 'chrome' else ('edge', 'chrome')
     roots = [os.environ.get(name) for name in ('ProgramFiles(x86)', 'ProgramFiles', 'LOCALAPPDATA')]
     paths = [Path(root, _PROGRAMS[browser]) for browser in order for root in roots if root]
