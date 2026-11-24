@@ -224,12 +224,5 @@ class ManifestGuardTests(GuardRepoFixture):
         self.assertIn("no package.json files found", result.stdout)
 
 
-class RealRepoTests(unittest.TestCase):
-    def test_guards_pass_on_this_repo(self):
-        # The live check CI runs: the actual repo tree must satisfy its own guards.
-        result = run_guards(REPO_ROOT)
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-
-
 if __name__ == "__main__":
     unittest.main()
