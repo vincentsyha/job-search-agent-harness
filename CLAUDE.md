@@ -213,11 +213,11 @@ Redirect to `/apply-any` unless they say they meant `/apply` specifically.
 `no_response`, `withdrawn`. When a workflow's own prose suggests something else
 ("applied", "interview", "offer"), write the canonical value instead - the
 workbook and the archiver classify on these, and an unrecognised status used to
-drop rows out of the funnel silently. `python harness/status.py` is the
+drop rows out of the funnel silently. `uv run python harness/status.py` is the
 reference.
 
 **Tracker writes go through the script**, never hand-written CSV:
-`python harness/tracker_row.py --company "..." --role "..." --set status=...`.
+`uv run python harness/tracker_row.py --company "..." --role "..." --set status=...`.
 It handles quoting, and it repairs a short header (a tracker created by
 `/outcome` lacks `submitted_date`, without which nothing ever moves to
 `applied/`).
@@ -234,7 +234,7 @@ empty duplicate rather than find it.
 
 **"I applied" writes `submitted_date`, not just a status.** The move to
 `applied/` keys on that column and nothing else:
-`python harness/tracker_row.py --company "..." --role "..." --set
+`uv run python harness/tracker_row.py --company "..." --role "..." --set
 submitted_date=<YYYY-MM-DD> --set status=in_progress`. Without it the folder
 stays live forever and the archiver never fires.
 

@@ -41,7 +41,7 @@ with one next action, the literal text to type. Questions in plain text, then wa
 
 ## /lite (status, <1 min)
 
-No `evidence/register.yaml`: offer `/lite setup`. Else run `python harness/today.py`;
+No `evidence/register.yaml`: offer `/lite setup`. Else run `uv run python harness/today.py`;
 relay its numbered actions (5 max), each with its command.
 
 ## /lite setup (4 steps, 5 on Codex; 5-10 min)
@@ -50,11 +50,11 @@ Follow `.claude/lite/setup.md`. Next: `/lite search`.
 
 ## /lite search [N] (3 steps, 1-2 min; all me)
 
-1. `python harness/lite_search.py --top N --record` (N top positions, default 5). A
+1. `uv run python harness/lite_search.py --top N --record` (N top positions, default 5). A
    failure line prints as such: relay it, never as "no jobs".
 2. Screen what a row shows (title, company, location) vs `exclusions`, `hard_skips`,
    `work_authorization`; the full gate is apply step 3. Each fail:
-   `python harness/lite_search.py --gate-fail <#> --rationale '<rule broken>'`.
+   `uv run python harness/lite_search.py --gate-fail <#> --rationale '<rule broken>'`.
 3. Show 10 survivors max: #, match, title, company, location.
 
 Next: `/lite apply <#>`.
@@ -66,10 +66,10 @@ type `/lite applied`.
 
 ## /lite applied [Company] (1 step, <1 min)
 
-The job just packaged: `python harness/lite_search.py --applied` (submitted today). An
+The job just packaged: `uv run python harness/lite_search.py --applied` (submitted today). An
 outcome, or an older job: `--applied <status> --match <one word of the company name>`;
 status `in_progress` (submitted), `rejected`, `interview_only` (interview or offer),
 `hired`, `offer_declined`, `no_response` or `withdrawn`. Then
-`python harness/archive_applications.py`. Follow-ups: `/outcome <Co>`.
+`uv run python harness/archive_applications.py`. Follow-ups: `/outcome <Co>`.
 
 Next: `/lite search`.

@@ -7,9 +7,9 @@ Writing it by hand means two copies of the same prose drifting apart the first
 time a fact is corrected in one and not the other, which is not hypothetical;
 it happened in the system this was ported from.
 
-    python harness/tex_to_md.py cv/main_acme_analyst.tex          > out.md
-    python harness/tex_to_md.py cover_letters/cover_acme.tex      > out.md
-    python harness/tex_to_md.py --self-check
+    uv run python harness/tex_to_md.py cv/main_acme_analyst.tex          > out.md
+    uv run python harness/tex_to_md.py cover_letters/cover_acme.tex      > out.md
+    uv run python harness/tex_to_md.py --self-check
 
 Contact details come from `evidence/register.yaml`'s `meta:` block, the same
 register that governs every other fact, so this script contains no personal
@@ -151,7 +151,7 @@ def contact_block(register_path: str = REGISTER) -> list[str]:
     try:
         import yaml
     except ImportError:
-        sys.exit("tex_to_md: PyYAML is required. Run: pip install -r requirements.txt")
+        sys.exit("tex_to_md: PyYAML is required. Run: uv sync")
     if not os.path.exists(register_path):
         sys.exit(
             f"tex_to_md: no evidence register at {register_path}. "

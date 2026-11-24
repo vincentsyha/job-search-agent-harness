@@ -9,7 +9,7 @@ with no .md or .docx: the instructions listed all three, and nobody noticed the
 two that were never written, because a contract test that reads a document
 cannot notice a file that does not exist.
 
-    python harness/apply_package.py \
+    uv run python harness/apply_package.py \
         --company "Rivermouth Environmental Consulting" \
         --role "Environmental Data Analyst" \
         --cv cv/main_rivermouth_analyst.tex \

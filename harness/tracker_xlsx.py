@@ -7,8 +7,8 @@ is ever read back out of it, which is the property that makes regeneration safe:
 it cannot lose a note, because it never held the only copy of one. Corrections
 travel through conversation ("rejected by Acme") into `/outcome`.
 
-    python harness/tracker_xlsx.py
-    python harness/tracker_xlsx.py --csv job_search_tracker.csv --out Job_Search_Tracker.xlsx
+    uv run python harness/tracker_xlsx.py
+    uv run python harness/tracker_xlsx.py --csv job_search_tracker.csv --out Job_Search_Tracker.xlsx
 
 Four tabs: Applications, Summary, Shortlist, Search Runs.
 """
@@ -142,7 +142,7 @@ def build(csv_path=DEFAULT_CSV, out_path=DEFAULT_OUT, today=None,
         from openpyxl.utils import get_column_letter
     except ImportError:
         sys.exit("tracker_xlsx: openpyxl is required. "
-                 "Run: pip install -r requirements.txt")
+                 "Run: uv sync")
 
     today = today or datetime.date.today()
     # Application folders live beside the tracker, not beside this module.

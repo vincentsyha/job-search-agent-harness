@@ -79,7 +79,7 @@ Rules that apply exactly as they do to a cover letter:
   imply one. This is the single most tempting fabrication at this stage and the one most
   likely to be checked.
 - Every fact in the message must be in `evidence/register.yaml`. Run
-  `python harness/fact_check.py <the draft>` before they send it — the same gate as any
+  `uv run python harness/fact_check.py <the draft>` before they send it — the same gate as any
   other document.
 - Their voice, not a template's. Read what they wrote in their cover letter for this
   employer and match it.
@@ -91,9 +91,9 @@ Show them the draft. They send it; **the system never sends anything.**
 Whatever they decide, put it in the tracker so the funnel stays true:
 
 ```
-python harness/tracker_row.py --company "<Company>" --role "<Role>" \
+uv run python harness/tracker_row.py --company "<Company>" --role "<Role>" \
     --set status=hired            # accepted
-python harness/tracker_row.py --company "<Company>" --role "<Role>" \
+uv run python harness/tracker_row.py --company "<Company>" --role "<Role>" \
     --set status=offer_declined   # declined
 ```
 

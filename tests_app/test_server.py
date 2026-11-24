@@ -20,7 +20,7 @@ prompt = sys.stdin.read()
 print(json.dumps({"type": "system", "subtype": "init", "session_id": "s-1"}))
 if "PING" in prompt:
     print(json.dumps({"type": "assistant", "message": {"content": [
-        {"type": "tool_use", "name": "Bash", "input": {"command": "python harness/today.py"}},
+        {"type": "tool_use", "name": "Bash", "input": {"command": "uv run python harness/today.py"}},
         {"type": "text", "text": "Which city do you live in?"}]}}))
     print(json.dumps({"type": "result", "result": "Which city do you live in?", "is_error": False}))
 else:
@@ -67,7 +67,7 @@ class Engines(unittest.TestCase):
         events = [engines.parse("codex", json.dumps(line)) for line in (
             {"type": "thread.started", "thread_id": "t-9"},
             {"type": "item.started", "item": {"type": "command_execution",
-             "command": "powershell.exe -Command 'python harness/fact_check.py cv/x.tex'"}},
+             "command": "powershell.exe -Command 'uv run python harness/fact_check.py cv/x.tex'"}},
             {"type": "item.completed", "item": {"type": "agent_message", "text": "Done."}},
             {"type": "turn.failed", "error": {"message": "usage limit reached"}})]
         self.assertEqual(events[0], [{"kind": "session", "text": "t-9"}])

@@ -6,9 +6,9 @@ read the scrape command, the job-scraper skill and every portal SKILL.md, then p
 CLI JSON itself. Here the board quirks live in small tables below, and the model reads
 at most 12 numbered rows.
 
-    python harness/lite_search.py --top 5 --record
-    python harness/lite_search.py --show 3     # one row, plus the command for its full text
-    python harness/lite_search.py --save 3     # fetch and archive row 3 for /lite apply
+    uv run python harness/lite_search.py --top 5 --record
+    uv run python harness/lite_search.py --show 3     # one row, plus the command for its full text
+    uv run python harness/lite_search.py --save 3     # fetch and archive row 3 for /lite apply
 
 Exit 0 = searched (even when nothing was new), 1 = every board failed, 2 = nothing to
 search with (no preferences, positions, boards or bun); one printed line says which.
@@ -420,7 +420,7 @@ def search(args) -> int:
     bun = shutil.which("bun")
     if not bun:
         print("lite_search: bun is not installed, and every portal CLI needs it - "
-              "run: python harness_setup.py --doctor")
+              "run: uv run python harness_setup.py --doctor")
         return 2
 
     queries = [position["query"] for position in positions]

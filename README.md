@@ -51,7 +51,7 @@ Screens show the fictional demo candidate, Riley Chen. On Windows 10 or 11:
 Edge, then run this once in Terminal from the Candor folder:
 
 ```
-python3 harness_setup.py
+uv run python harness_setup.py
 ```
 
 It prints the macOS command for anything missing. The two that matter are the PDF
@@ -138,7 +138,7 @@ steps, done once.
 ```bash
 git clone https://github.com/WilliamEbong/job-search-agent-harness
 cd job-search-agent-harness
-python harness_setup.py
+uv run python harness_setup.py
 ```
 
 **2. Open your AI agent in that same folder.** Still inside `job-search-agent-harness`,
@@ -269,7 +269,7 @@ workflows themselves.
 
 | Layer | What it is |
 |---|---|
-| Harness, checks, tracker | Python 3.10+ (PyYAML, openpyxl, pypdf) |
+| Harness, checks, tracker | Python 3.10+, in a `.venv` that `uv sync` builds from `pyproject.toml` |
 | Board search | Bun + TypeScript command-line tools, no runtime dependencies |
 | Documents | TeX with `lualatex` and `xelatex`; poppler for `pdftotext` and `pdfinfo` |
 | Optional | Firecrawl Local for pages that will not load plainly; pandoc for Word files |
@@ -359,7 +359,7 @@ network_access = true
 If the file already has a `[sandbox_workspace_write]` line, add only `network_access = true`
 under it: a second copy of that header stops Codex from starting. Codex can make the edit
 for you if you ask it to back the file up first and show you the change before writing.
-Afterwards, the `Codex network` row of `python harness_setup.py --doctor` reads OK.
+Afterwards, the `Codex network` row of `uv run python harness_setup.py --doctor` reads OK.
 
 If a search fails anyway, the harness says the board could not be searched, never that
 there were no jobs.
@@ -409,10 +409,10 @@ The upstream pin is tag `v1.3.0`. To move it:
 
 ```bash
 git fetch upstream --tags
-python tools/check_upstream_updates.py
+uv run python tools/check_upstream_updates.py
 git checkout -b upstream-merge && git merge v1.4.0
-python tools/security_guards.py && python tools/harness_guards.py
-python -m unittest discover -s tests -t . && python -m unittest discover -s tests_harness -t .
+uv run python tools/security_guards.py && uv run python tools/harness_guards.py
+uv run python -m unittest discover -s tests -t . && uv run python -m unittest discover -s tests_harness -t .
 ```
 
 Merge only once the guards and both test suites pass. `check_upstream_updates.py`

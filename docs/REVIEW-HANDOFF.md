@@ -186,7 +186,7 @@ The handoff for that pass, with its verification record and open items, is
 
 ### 4.1 Deliberate divergences from upstream (audit pass, 2026-08-07)
 
-Seventeen `[U]` files now differ. Each was changed on purpose; a merge that reverts
+Twenty-one `[U]` files now differ. Each was changed on purpose; a merge that reverts
 one silently removes the capability named beside it.
 
 | File | Why it diverges |
@@ -206,6 +206,7 @@ one silently removes the capability named beside it.
 | `CLAUDE.md`, `cv/main_example.tex` | Checklist changes; microtype/needspace preamble; ATS checklist points at `harness/ats_check.py` |
 | `cover_letters/cover.cls` | One `\defaultfontfeatures[Raleway-Medium]{BoldFont = Raleway-Bold}` line: body text loads Raleway-Medium by file name, so `\textbf{Label:}` bullets printed at body weight. `test_latex_build.CoverLetterBold` compiles the example and checks the bold face is embedded |
 | `.agents/skills/jobindex-search/url-reference.md` | The `## Examples` block fetched each URL with `playwright-cli`, a tool this fork no longer installs. It now uses `firecrawl-local scrape … --markdown`. The URL patterns, parameter tables and job-card selectors are unchanged |
+| `salary_lookup.py`, `tools/{convert_salary_excel,check_upstream_updates}.py`, `tools/README_SALARY_TOOL.md` | Usage lines only: `python X.py` became `uv run python X.py`, because the dependencies now live in `.venv` that `uv sync` builds. No behaviour changed |
 
 Ownership map: **this section**. `docs/build-history/plan-D-repo-structure.md`
 is the Stage-3 planning tree and is historical — it predates six harness

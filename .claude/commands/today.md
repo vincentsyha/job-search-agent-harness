@@ -28,7 +28,7 @@ nothing in it yet.
 ## Step 2: Gather the state
 
 ```
-python harness/today.py --json
+uv run python harness/today.py --json
 ```
 
 One read-only script assembles everything: open applications and how long each has been
@@ -42,7 +42,7 @@ right.
 ## Step 3: Refresh the workbook if it is stale
 
 If `job_search_tracker.csv` is newer than `Job_Search_Tracker.xlsx`, run
-`python harness/tracker_xlsx.py` quietly and mention it in one clause. The user should
+`uv run python harness/tracker_xlsx.py` quietly and mention it in one clause. The user should
 never have to remember to run `/tracker` just to keep the spreadsheet current.
 
 ## Step 4: Show them the screen
@@ -98,7 +98,7 @@ six times:
 Only on a yes, and only for the ones listed:
 
 ```
-python harness/tracker_row.py --company "<Company>" --role "<Role>" --set status=no_response
+uv run python harness/tracker_row.py --company "<Company>" --role "<Role>" --set status=no_response
 ```
 
 `no_response` is a real outcome, not a deletion — the rows stay, the response-rate

@@ -4,8 +4,8 @@
 Reads `evidence/register.yaml` and checks CV / cover-letter text against it.
 A claim that is not in the register is not claimable.
 
-    python harness/fact_check.py cv/main_acme_analyst.tex cover_letters/cover_acme.tex
-    python harness/fact_check.py --posting documents/applications/Acme_Analyst/job_posting.md draft.tex
+    uv run python harness/fact_check.py cv/main_acme_analyst.tex cover_letters/cover_acme.tex
+    uv run python harness/fact_check.py --posting documents/applications/Acme_Analyst/job_posting.md draft.tex
 
 Exit code = number of red lines (0 = OK).
 
@@ -79,7 +79,7 @@ def _require_yaml():
     except ImportError:
         sys.exit(
             "fact_check: PyYAML is required to read the evidence register. "
-            "Run: pip install -r requirements.txt"
+            "Run: uv sync"
         )
     return yaml
 

@@ -6,9 +6,9 @@ ignore rules present, is anything personal tracked?). This checks *content*:
 does any file that would ship contain something that looks like a real person's
 details?
 
-    python harness/privacy_sweep.py            # scan tracked files
-    python harness/privacy_sweep.py --all      # scan the whole working tree
-    python harness/privacy_sweep.py --explain  # also list what was allowed, and why
+    uv run python harness/privacy_sweep.py            # scan tracked files
+    uv run python harness/privacy_sweep.py --all      # scan the whole working tree
+    uv run python harness/privacy_sweep.py --explain  # also list what was allowed, and why
 
 Exit code = number of hits. Zero is the release gate.
 

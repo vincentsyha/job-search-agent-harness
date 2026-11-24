@@ -17,7 +17,7 @@ why; this is the manual.
 Candor is the desktop app over this system. It does everything below through screens
 and buttons, so you never type a command. Install it with **Install Candor** (see the
 README), then open it from the Candor icon. On a Mac there is no installer, so run
-`python3 harness_setup.py` once and then double-click **Candor.command** in the folder.
+`uv run python harness_setup.py` once and then double-click **Candor.command** in the folder.
 Closing the window stops it after a few
 minutes; if the assistant is still working on something, it finishes first.
 
@@ -129,7 +129,7 @@ jobs", "what should I do today", "remember that I finished my certificate".
 ```bash
 git clone https://github.com/<you>/job-search-agent-harness
 cd job-search-agent-harness
-python harness_setup.py
+uv run python harness_setup.py
 ```
 
 It first asks **which plan your coding agent runs on**, explains the two ways to run the
@@ -468,14 +468,14 @@ replies you may have missed rather than prompting you to chase.
 
 **Archiving is opt-in.** Applications older than eight weeks are *reported* as
 ready to archive; nothing is deleted unless you ask
-(`python harness/archive_applications.py --archive`). Anything still open is
+(`uv run python harness/archive_applications.py --archive`). Anything still open is
 skipped regardless — an interview in progress is never archived.
 
 **Undo.** The tracker is backed up before every change, five deep:
 
 ```
-python harness/rotate_backup.py job_search_tracker.csv --list
-python harness/rotate_backup.py job_search_tracker.csv --restore 1
+uv run python harness/rotate_backup.py job_search_tracker.csv --list
+uv run python harness/rotate_backup.py job_search_tracker.csv --restore 1
 ```
 
 Restoring backs up the current file first, so it is itself reversible.

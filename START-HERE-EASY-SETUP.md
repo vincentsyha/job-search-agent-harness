@@ -104,7 +104,7 @@ one), never ask me to open a terminal, and decline optional extras.
    otherwise the ZIP (on Windows, unblock the unpacked files). If this folder is not
    empty, delete nothing: download to a temporary folder and move everything here,
    including the hidden folders (.git, .claude, .agents).
-2. Run `python harness_setup.py --yes --quick` here (`python3` on a Mac). If Python is
+2. Run `uv run python harness_setup.py --yes --quick` here (`python3` on a Mac). If Python is
    missing, install it first.
 3. Install anything it reports MISSING, then run it again. Use the command it prints;
    on a Mac, or where it prints none, use the standard installer or Homebrew. Repeat
@@ -145,7 +145,7 @@ that was just installed.
 3. Copy the grey box below, paste it, and press Enter.
 
 ```text
-I am not technical. First finish the install: run `python harness_setup.py --yes
+I am not technical. First finish the install: run `uv run python harness_setup.py --yes
 --quick` (`python3` on a Mac). If anything required is still MISSING, install it
 yourself and run it again, telling me in plain everyday words if I need to click
 something. A MISSING "Agent runtime" row is fine: I am using the desktop app.
@@ -199,7 +199,7 @@ asks a few yes-or-no questions: press Enter for each one. After that, open it wi
 **Candor** icon on your Desktop. If Candor says it cannot find an AI assistant, paste
 that message into the AI program and ask it to fix it.
 
-On a Mac there is no installer yet. Run `python3 harness_setup.py` once, then
+On a Mac there is no installer yet. Run `uv run python harness_setup.py` once, then
 double-click **Candor.command** in the folder; the README's app section has the details.
 
 ![Candor's Today screen, showing one next action and the strongest jobs found](docs/media/candor-today.webp)

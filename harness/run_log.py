@@ -5,9 +5,9 @@ Called by /scrape after every run, including runs that found nothing, a search
 that returned zero results is a fact worth keeping, because a board that goes
 quiet for a fortnight looks identical to a board that broke.
 
-    python harness/run_log.py --portal linkedin --query "environmental analyst Winnipeg" \
+    uv run python harness/run_log.py --portal linkedin --query "environmental analyst Winnipeg" \
         --found 24 --new 6
-    python harness/run_log.py --portal companies --query "scope: companies (4)" \
+    uv run python harness/run_log.py --portal companies --query "scope: companies (4)" \
         --found 3 --new 1 --notes "boreal: unverified (bot wall)"
 """
 

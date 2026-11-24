@@ -11,10 +11,10 @@ from your own salary data. See tools/README_SALARY_TOOL.md for
 instructions on the expected format and how to convert from Excel.
 
 Usage:
-    python salary_lookup.py "Company Name"
-    python salary_lookup.py "Company Name" --city "København"
-    python salary_lookup.py "Company Name" --json
-    python salary_lookup.py --list-all
+    uv run python salary_lookup.py "Company Name"
+    uv run python salary_lookup.py "Company Name" --city "København"
+    uv run python salary_lookup.py "Company Name" --json
+    uv run python salary_lookup.py --list-all
 """
 
 import json

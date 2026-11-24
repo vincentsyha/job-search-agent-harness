@@ -12,7 +12,7 @@ Two writers used to be told to produce this file in prose: `/scrape` Step 6,
 which at least published the column list, and `/apply-any`'s autonomy ladder,
 which named neither a path nor a schema.
 
-    python harness/shortlist_row.py --company "Acme" --role "Data Analyst" \\
+    uv run python harness/shortlist_row.py --company "Acme" --role "Data Analyst" \\
         --score 82 --verdict qualified --url https://... \\
         --rationale "strong QA/QC match; GIS is a gap" --deadline 2026-09-15
 

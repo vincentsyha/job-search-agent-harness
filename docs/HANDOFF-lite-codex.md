@@ -171,8 +171,8 @@ Still open:
 ## Verify in one go
 
 ```bash
-python -m unittest discover -s tests_harness -t .
-python -m unittest discover -s tests -t .
-python tools/lint_skills.py && python tools/security_guards.py && python tools/harness_guards.py
-python harness/privacy_sweep.py && python tools/check_framework_version.py
+uv run python -m unittest discover -s tests_harness -t .
+uv run python -m unittest discover -s tests -t .
+uv run python tools/lint_skills.py && uv run python tools/security_guards.py && uv run python tools/harness_guards.py
+uv run python harness/privacy_sweep.py && uv run python tools/check_framework_version.py
 ```

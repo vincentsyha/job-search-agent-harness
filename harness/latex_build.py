@@ -5,7 +5,7 @@ A raw lualatex run prints several kilobytes of package chatter, and the model re
 all of it on every compile of every application. This prints only what matters: the
 page count against the target, or the first error with its line number.
 
-    python harness/latex_build.py cv/main_acme_analyst.tex cover_letters/cover_acme_analyst.tex --pages 2
+    uv run python harness/latex_build.py cv/main_acme_analyst.tex cover_letters/cover_acme_analyst.tex --pages 2
 
 Engine by folder: `cover_letters/` uses xelatex (cover.cls needs fontspec), anything
 else lualatex (pdflatex fails on fontawesome5 under modern MiKTeX). `--pages` is the CV
@@ -101,7 +101,7 @@ def first_error(log: str, limit: int = 8) -> str:
 def build(tex: Path, pages: int) -> tuple[bool, str]:
     engine = shutil.which(engine_for(tex))
     if not engine:
-        return False, f"{tex}: {engine_for(tex)} is not installed (python harness_setup.py --doctor)"
+        return False, f"{tex}: {engine_for(tex)} is not installed (uv run python harness_setup.py --doctor)"
     command = [engine, "-interaction=nonstopmode", "-halt-on-error", tex.name]
     log, pdf = tex.with_suffix(".log"), tex.with_suffix(".pdf")
     pdf.unlink(missing_ok=True)  # an old PDF must never be counted as this build's

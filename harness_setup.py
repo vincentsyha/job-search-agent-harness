@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """One-command setup and doctor for the Job Search Agent Harness.
 
-    python harness_setup.py            # check, offer installs, print the doctor table
-    python harness_setup.py --doctor   # check and report only; change nothing
-    python harness_setup.py --yes      # take the recommended answer to every prompt
-    python harness_setup.py --quick    # skip the stock-template test compiles
+    uv run python harness_setup.py            # check, offer installs, print the doctor table
+    uv run python harness_setup.py --doctor   # check and report only; change nothing
+    uv run python harness_setup.py --yes      # take the recommended answer to every prompt
+    uv run python harness_setup.py --quick    # skip the stock-template test compiles
 
 Design rules this file follows, and why:
 
 * **Stdlib only.** harness_setup.py runs *before* dependencies exist, so it cannot
-  import them. That is also why it parses nothing from requirements.txt beyond
-  handing the file to pip.
+  import them. That is also why the environment itself is uv's job: the file hands
+  pyproject.toml to `uv sync` and then proves the result by importing in .venv.
 * **Never assume an install worked.** Every install is followed by the check
   that would have caught its failure: plugins are re-listed and matched by
   name, TeX is asked to compile a real document, Python packages are imported.
@@ -455,19 +455,22 @@ def _test_compile(exe: str, engine: str, subdir: Path, texfile: str,
 
 
 def check_python_deps() -> Check:
-    """Import what requirements.txt pins. Importable is the only proof."""
-    missing = []
-    for module, package in (("yaml", "PyYAML"), ("openpyxl", "openpyxl"),
-                            ("pypdf", "pypdf")):
-        try:
+    """Import what pyproject.toml pins, in the environment uv owns."""
+    python = venv_python()
+    probe = "import yaml, openpyxl, pypdf"
+    if python:
+        code, _ = run([str(python), "-c", probe], timeout=120)
+        return Check("Python packages", OK if code == 0 else MISSING,
+                     "PyYAML, openpyxl, pypdf in .venv" if code == 0
+                     else ".venv exists but cannot import them",
+                     "" if code == 0 else "uv sync")
+    try:
+        for module in ("yaml", "openpyxl", "pypdf"):
             __import__(module)
-        except ImportError:
-            missing.append(package)
-    if missing:
-        return Check("Python packages", MISSING,
-                     f"not importable: {', '.join(missing)}",
-                     " ".join(pip_install_argv(ROOT / "requirements.txt")))
-    return Check("Python packages", OK, "PyYAML, openpyxl, pypdf")
+    except ImportError:
+        return Check("Python packages", MISSING, "no .venv, and this interpreter lacks them",
+                     "uv sync")
+    return Check("Python packages", OK, "PyYAML, openpyxl, pypdf in this interpreter")
 
 
 # --------------------------------------------------------------------------
@@ -540,25 +543,26 @@ FIRECRAWL_LOCAL = "firecrawl-local"
 # redirect: a posting is untrusted data and must not aim the scraper inward.
 FIRECRAWL_MCP_ARGS = ["mcp", "--public-only"]
 
-STATUSLINE_COMMAND = "python harness/telemetry_statusline.py"
+STATUSLINE_COMMAND = "uv run python harness/telemetry_statusline.py"
 
 # The harness scripts an application run invokes. Without these pre-approved,
 # a single /apply-any raises six to eight separate "allow this command?"
 # dialogs, several of them inside a multi-minute compile loop.
 HARNESS_PERMISSIONS = [
-    "Bash(python harness/apply_package.py:*)",
-    "Bash(python harness/ats_check.py:*)",
-    "Bash(python harness/fact_check.py:*)",
-    "Bash(python harness/latex_build.py:*)",
-    "Bash(python harness/lite_search.py:*)",
-    "Bash(python harness/shortlist_row.py:*)",
-    "Bash(python harness/tracker_row.py:*)",
-    "Bash(python harness/tracker_xlsx.py:*)",
-    "Bash(python harness/archive_applications.py:*)",
-    "Bash(python harness/run_log.py:*)",
-    "Bash(python harness/rotate_backup.py:*)",
-    "Bash(python harness/today.py:*)",
-    "Bash(python harness/tex_to_md.py:*)",
+    "Bash(uv run python harness/apply_package.py:*)",
+    "Bash(uv run python harness/ats_check.py:*)",
+    "Bash(uv run python harness/fact_check.py:*)",
+    "Bash(uv run python harness/latex_build.py:*)",
+    "Bash(uv run python harness/lite_search.py:*)",
+    "Bash(uv run python harness/shortlist_row.py:*)",
+    "Bash(uv run python harness/tracker_row.py:*)",
+    "Bash(uv run python harness/tracker_xlsx.py:*)",
+    "Bash(uv run python harness/archive_applications.py:*)",
+    "Bash(uv run python harness/run_log.py:*)",
+    "Bash(uv run python harness/rotate_backup.py:*)",
+    "Bash(uv run python harness/today.py:*)",
+    "Bash(uv run python harness/tex_to_md.py:*)",
+    "Bash(uv sync:*)",
     "Bash(lualatex:*)",
     "Bash(xelatex:*)",
     "Bash(pandoc:*)",
@@ -740,29 +744,44 @@ def offer_mcp(runtime: Runtime) -> list[Check]:
 
 
 def install_python_deps() -> Check:
-    req = ROOT / "requirements.txt"
-    if not req.is_file():
-        return Check("Python packages", MISSING, "requirements.txt not found")
-    step("installing the Python packages (pyyaml, openpyxl, pypdf)")
-    code, out = run(pip_install_argv(req), timeout=900)
+    uv, _ = find_tool("uv")
+    if not uv:
+        return Check("Python packages", MISSING, "uv is not installed", UV_INSTALL_FIX)
+    step("syncing the project environment (uv sync)")
+    code, out = run([uv, "sync"], timeout=900, cwd=ROOT)
     if code != 0:
-        return Check("Python packages", MISSING, "pip install failed",
-                     out.strip()[-300:])
-    return check_python_deps()  # prove it by importing, not by pip's exit code
+        return Check("Python packages", MISSING, "uv sync failed", out.strip()[-300:])
+    return check_python_deps()  # prove it by importing, not by uv's exit code
 
 
-def pip_install_argv(req: Path) -> list[str]:
-    """uv when it is installed, pip otherwise.
+def venv_python() -> Path | None:
+    """The project interpreter, once `uv sync` has created one."""
+    for candidate in (ROOT / ".venv" / "bin" / "python",
+                      ROOT / ".venv" / "Scripts" / "python.exe"):
+        if candidate.is_file():
+            return candidate
+    return None
 
-    Measured on 2026-11-24, cold cache, these three wheels: 1.3s with pip, 0.5s
-    with uv. Speed is the smaller reason to prefer it. The larger one is that
-    `uv pip install` works on a Python whose own pip is missing, which is the
-    state `python -m pip` cannot fix.
-    """
-    uv = shutil.which("uv")
-    if uv:
-        return [uv, "pip", "install", "--python", sys.executable, "-r", str(req)]
-    return [sys.executable, "-m", "pip", "install", "-r", str(req)]
+
+UV_INSTALL_FIX = platform_hint(
+    "winget install --id astral-sh.uv",
+    "brew install uv",
+    "curl -LsSf https://astral.sh/uv/install.sh | sh",
+)
+
+
+def check_uv() -> Check:
+    """uv owns the environment: pyproject.toml pins, uv.lock locks, uv sync installs."""
+    path, stale = find_tool("uv")
+    if not path:
+        return Check("uv", MISSING, "not on PATH", UV_INSTALL_FIX)
+    if stale:
+        return Check("uv", STALE_PATH, "installed, but not in this shell's PATH",
+                     "Close and reopen your terminal, then re-run setup.")
+    code, out = run([path, "--version"], timeout=60)
+    if code != 0:
+        return Check("uv", DEGRADED, f"exited {code}", out.strip()[:200])
+    return Check("uv", OK, out.strip().splitlines()[0][:40] if out.strip() else "present")
 
 
 def portal_cli_dirs(enabled_only: bool = False) -> list[Path]:
@@ -902,6 +921,7 @@ def main(argv: list[str] | None = None) -> int:
 
     section("Prerequisites")
     checks.append(check_python())
+    checks.append(check_uv())
     checks.append(check_simple("Node", "node", ["--version"]))
     checks.append(check_bun())
     checks.extend(check_tex(quick=args.quick))
@@ -915,7 +935,7 @@ def main(argv: list[str] | None = None) -> int:
     section("Python packages")
     deps = check_python_deps()
     if deps.status != OK and not DOCTOR_ONLY and confirm(
-        "Install the pinned Python packages from requirements.txt?"
+        "Create the project environment from pyproject.toml? (uv sync)"
     ):
         deps = install_python_deps()
     print(f"  {deps.name}: {deps.status} — {deps.detail}")
@@ -974,7 +994,7 @@ def main(argv: list[str] | None = None) -> int:
             # the user who most needed direction got a list of complaints and
             # nothing to do about it.
             print("\nNext step: fix the item(s) above, then run this again:")
-            print(f"    {sys.executable} harness_setup.py")
+            print("    uv run python harness_setup.py")
         else:
             first = "lite setup" if mode == "lite" else "setup-harness"
             print(f"\nNext step: open this folder in your agent (run `claude` or `codex` "

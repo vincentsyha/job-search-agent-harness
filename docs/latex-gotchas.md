@@ -78,7 +78,7 @@ content does not fit, cut content.
 ### Hit the configured page count exactly, and never by shrinking type
 
 The CV is exactly the configured page target (`preferences.yaml` →
-`presentation.cv_pages`, default 2; `python harness/presentation.py` prints it); the
+`presentation.cv_pages`, default 2; `uv run python harness/presentation.py` prints it); the
 cover letter is exactly 1 page. Verify with `pdfinfo` or
 upstream's `tools/verify_pdf.py --pages`, and iterate until it is true. A cover letter
 whose signature block has slipped onto page 2 is the single most common defect in this

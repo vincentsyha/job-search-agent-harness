@@ -88,7 +88,7 @@ Every one of those rows goes in through the script — the same one `/scrape` St
 which owns the schema and the quoting:
 
 ```
-python harness/shortlist_row.py --company "<Company>" --role "<Role>" \
+uv run python harness/shortlist_row.py --company "<Company>" --role "<Role>" \
     --score <fit> --verdict <qualified|not-drafted|gate-fail> \
     --url "<url>" --rationale "<the reason, quoted from the posting where it is one>"
 ```
@@ -141,7 +141,7 @@ operation that quietly strengthens a claim past its evidence.
 application**. One script builds it, so nothing is improvised per run:
 
 ```
-python harness/apply_package.py \
+uv run python harness/apply_package.py \
     --company "<Company>" --role "<Role>" \
     --cv cv/main_<slug>.tex --letter cover_letters/cover_<slug>.tex \
     --url "<posting URL>" --score <fit> --location "<location>" \
@@ -215,8 +215,8 @@ Skip a phrasing that is identical to the master CV's — the library is for vari
 
 Then, still before presenting:
 
-5. **Refresh the workbook:** `python harness/tracker_xlsx.py`.
-6. **Move anything submitted:** `python harness/archive_applications.py`. This moves
+5. **Refresh the workbook:** `uv run python harness/tracker_xlsx.py`.
+6. **Move anything submitted:** `uv run python harness/archive_applications.py`. This moves
    applications with a filled `submitted_date` into `documents/applications/applied/`.
    It no longer deletes anything by default — old folders are only *reported*, and
    zipping them requires an explicit `--archive`, because it used to delete folders in
