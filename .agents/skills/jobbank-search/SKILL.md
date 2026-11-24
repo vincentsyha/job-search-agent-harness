@@ -19,7 +19,7 @@ description: >
   jobbank søgning, find stilling, data scientist job, software developer job,
   projektleder stilling, konsulent job, data analyse job.
 context: fork
-enabled: false  # Denmark board, disabled: this fork searches Canada. Re-run setup after enabling.
+enabled: false  # Denmark board, this fork searches Canada. Re-run setup after enabling.
 allowed-tools: Bash(bun run .agents/skills/jobbank-search/cli/src/cli.ts *)
 ---
 

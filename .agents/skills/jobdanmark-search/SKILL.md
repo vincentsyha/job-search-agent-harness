@@ -17,7 +17,7 @@ description: >
   work in denmark, employment denmark, job denmark, jobs near me denmark,
   apprentice denmark, internship denmark, part-time denmark, full-time denmark.
 context: fork
-enabled: false  # Denmark board, disabled: this fork searches Canada. Re-run setup after enabling.
+enabled: false  # Denmark board, this fork searches Canada. Re-run setup after enabling.
 allowed-tools: Bash(bun run .agents/skills/jobdanmark-search/cli/src/cli.ts *)
 ---
 

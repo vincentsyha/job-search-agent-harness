@@ -684,7 +684,7 @@ def mcp_listing(runtime: Runtime) -> str:
 
 
 def check_firecrawl_local() -> Check:
-    """One local binary replaces the two cloud MCP servers this used to offer."""
+    """Is the Firecrawl Local binary on PATH, and which version."""
     path, _ = find_tool(FIRECRAWL_LOCAL)
     if not path:
         return Check("Firecrawl Local", OPTIONAL,
@@ -756,8 +756,8 @@ def pip_install_argv(req: Path) -> list[str]:
 
     Measured on 2026-11-24, cold cache, these three wheels: 1.3s with pip, 0.5s
     with uv. Speed is the smaller reason to prefer it. The larger one is that
-    `uv pip install` works on a Python whose own pip is missing, which is a
-    state `python -m pip` cannot report its way out of.
+    `uv pip install` works on a Python whose own pip is missing, which is the
+    state `python -m pip` cannot fix.
     """
     uv = shutil.which("uv")
     if uv:
@@ -771,14 +771,14 @@ def portal_cli_dirs(enabled_only: bool = False) -> list[Path]:
     if not enabled_only:
         return dirs
     try:
-        # Not at module scope: lite_search imports PyYAML, and setup has to run on
-        # the machine where PyYAML is the thing that is missing.
+        # Local import: lite_search needs PyYAML, and setup may be running on the
+        # machine where PyYAML is the thing that is missing.
         from harness.lite_search import discover_boards
 
         enabled, _ = discover_boards(ROOT)
     except ImportError:
-        # The toggle cannot be read yet. Preparing every portal is the safe
-        # fallback; this step runs again once the packages are installed.
+        # The toggle is unreadable until its dependency exists. Prepare every
+        # portal rather than crash; the packages check above has already warned.
         return dirs
     return [cli for cli in dirs if cli.parent.name in enabled]
 
@@ -802,8 +802,8 @@ def install_portal_deps() -> list[Check]:
     step(f"installing dependencies for {len(dirs)} job-board tools")
     if skipped:
         # A disabled portal's CLI is not prepared, so enabling one later needs
-        # this run again. Measured cold: 7 portals cost 4.9s and 262MB of cache,
-        # the 3 enabled ones here 0.4s and 29MB.
+        # this run again. Measured cold: seven portals cost 4.9s and 262MB of
+        # cache, three cost 0.4s and 29MB.
         print(f"  skipping {len(skipped)} disabled: {', '.join(skipped)}")
         print("  re-run setup after you enable one")
     for index, cli in enumerate(dirs, 1):
