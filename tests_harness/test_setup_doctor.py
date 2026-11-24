@@ -28,6 +28,8 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import subprocess
+
 import harness_setup as setup  # noqa: E402  (the path shim above must run first)
 
 
@@ -179,7 +181,6 @@ class PlanAndMode(unittest.TestCase):
         self.assertEqual(("other", "lite"), self.pick("9"))
 
     def test_choice_is_recorded_once_and_never_overwrites(self):
-        import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             setup.seed_preferences("claude-pro", "lite", root)
@@ -190,7 +191,6 @@ class PlanAndMode(unittest.TestCase):
             self.assertEqual(text, (root / "preferences.yaml").read_text(encoding="utf-8"))
 
     def test_standard_is_recorded_as_the_focused_usage_mode(self):
-        import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             setup.seed_preferences("claude-max", "standard", Path(tmp))
             self.assertIn("mode: focused",
@@ -439,7 +439,6 @@ class SetupShim(unittest.TestCase):
     """
 
     def _run(self, *args: str):
-        import subprocess
         return subprocess.run(
             [sys.executable, str(Path(setup.__file__).parent / "setup.py"),
              *args],
@@ -473,7 +472,6 @@ class CodexNetworkCheck(unittest.TestCase):
     it, and a board CLI that cannot connect looks like a quiet board."""
 
     def check(self, config: str | None):
-        import tempfile
         with tempfile.TemporaryDirectory() as home:
             if config is not None:
                 (Path(home) / "config.toml").write_text(config, encoding="utf-8")

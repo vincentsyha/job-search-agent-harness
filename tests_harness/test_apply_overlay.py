@@ -13,9 +13,11 @@ ones where a missing sentence produces a package that looks fine and is not:
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -49,7 +51,6 @@ class TexToMdMirror(unittest.TestCase):
         reached the output. It now renders against the demo register and looks
         for the demo candidate.
         """
-        import tempfile
 
         tex = ("\\begin{document}\\makecvtitle\n"
                "\\section{Experience}\n"
@@ -73,7 +74,6 @@ class TexToMdMirror(unittest.TestCase):
 
     def test_mirror_refuses_to_render_without_a_register(self):
         """Better a loud failure than a mirror with no identity on it."""
-        import tempfile
 
         with tempfile.NamedTemporaryFile("w", suffix=".tex", delete=False,
                                          encoding="utf-8") as handle:
@@ -220,7 +220,6 @@ class PostingIntakeFixture(unittest.TestCase):
     FIXTURES = ROOT / "tests_harness" / "fixtures" / "posting_intake"
 
     def setUp(self):
-        import json
         self.html = (self.FIXTURES / "posting.html").read_text(encoding="utf-8")
         self.truth = json.loads(
             (self.FIXTURES / "ground_truth.json").read_text(encoding="utf-8"))

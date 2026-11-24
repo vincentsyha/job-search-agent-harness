@@ -23,6 +23,7 @@ system does to a user:
 from __future__ import annotations
 
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -287,20 +288,17 @@ class CvPageTarget(unittest.TestCase):
         return path
 
     def test_missing_file_defaults_to_two(self):
-        import tempfile
         from harness.presentation import cv_page_target
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(2, cv_page_target(Path(tmp) / "preferences.yaml"))
 
     def test_missing_section_defaults_to_two(self):
-        import tempfile
         from harness.presentation import cv_page_target
         with tempfile.TemporaryDirectory() as tmp:
             path = self._write(Path(tmp), "role_families:\n  - analysis\n")
             self.assertEqual(2, cv_page_target(path))
 
     def test_one_two_and_n_pass_through(self):
-        import tempfile
         from harness.presentation import cv_page_target
         for pages in (1, 2, 3):
             with tempfile.TemporaryDirectory() as tmp:
@@ -309,14 +307,12 @@ class CvPageTarget(unittest.TestCase):
                 self.assertEqual(pages, cv_page_target(path))
 
     def test_adaptive_is_returned_verbatim(self):
-        import tempfile
         from harness.presentation import cv_page_target
         with tempfile.TemporaryDirectory() as tmp:
             path = self._write(Path(tmp), "presentation:\n  cv_pages: adaptive\n")
             self.assertEqual("adaptive", cv_page_target(path))
 
     def test_garbage_value_defaults_to_two(self):
-        import tempfile
         from harness.presentation import cv_page_target
         with tempfile.TemporaryDirectory() as tmp:
             path = self._write(Path(tmp), "presentation:\n  cv_pages: tall\n")

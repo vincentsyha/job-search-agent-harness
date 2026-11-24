@@ -27,6 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "harness"))
 
+import subprocess
+
 import archive_applications as archiver  # noqa: E402
 import tracker_xlsx  # noqa: E402
 
@@ -232,7 +234,6 @@ class WorkbookGeneration(unittest.TestCase):
         self.assertIn("second round booked", before)
 
     def test_missing_csv_exits_cleanly_rather_than_crashing(self):
-        import subprocess
 
         proc = subprocess.run(
             [sys.executable, str(ROOT / "harness" / "tracker_xlsx.py"),

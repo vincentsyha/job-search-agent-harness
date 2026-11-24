@@ -26,7 +26,11 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "harness"))
 sys.path.insert(0, str(ROOT))
 
+import os
+from unittest import mock
+
 import apply_package  # noqa: E402
+
 from tests_harness.test_ats_check import text_pdf  # noqa: E402
 
 REGISTER = ROOT / "evidence" / "register.example.yaml"
@@ -465,7 +469,6 @@ class AtsReportGate(unittest.TestCase):
     def test_a_pdf_older_than_its_source_blocks(self):
         """The fact gate reads the .tex; a PDF built before the last edit can still
         carry the claim the gate made you remove (review finding)."""
-        import os
         text_pdf(self.cv.with_suffix(".pdf"), self.CV_LINES)
         later = self.cv.with_suffix(".pdf").stat().st_mtime + 60
         os.utime(self.cv, (later, later))
@@ -474,7 +477,6 @@ class AtsReportGate(unittest.TestCase):
         self.assertIn("PDF OLDER THAN ITS SOURCE", out)
 
     def test_a_rerun_refreshes_the_unsubmitted_tracker_row(self):
-        from unittest import mock
         text_pdf(self.cv.with_suffix(".pdf"), self.CV_LINES)
         tracker = self.tmp / "tracker.csv"
         argv = ["--company", self.COMPANY, "--role", self.ROLE, "--cv", str(self.cv),

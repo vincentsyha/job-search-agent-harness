@@ -13,10 +13,13 @@ run but changes what the user is told:
 
 from __future__ import annotations
 
+import csv
+import importlib
 import json
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -178,9 +181,6 @@ class RunLogging(unittest.TestCase):
         self.assertIn("including runs that found nothing", text)
 
     def test_run_log_writes_the_expected_columns(self):
-        import csv
-        import tempfile
-        import importlib
 
         with tempfile.TemporaryDirectory() as tmp:
             log = Path(tmp) / "run_log.csv"
