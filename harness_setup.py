@@ -361,8 +361,8 @@ TEST_COMPILES = (
 def platform_hint(windows: str, macos: str, linux: str) -> str:
     """The install command for the machine this is running on.
 
-    A fix line the user cannot run is worse than none: winget does not exist on
-    macOS or on Debian.
+    A fix line the user cannot run is worse than none. The winget command does
+    not exist on macOS or on Debian.
     """
     if os.name == "nt":
         return windows
@@ -388,9 +388,9 @@ def check_tex(quick: bool = False) -> list[Check]:
                 "Both engines are needed: lualatex for CVs, xelatex for letters. "
                 + platform_hint(
                     "Install MiKTeX: winget install --id MiKTeX.MiKTeX",
-                    "Install TeX: brew install --cask mactex-no-gui (about 5 GB; "
-                    "BasicTeX is much smaller but lacks the packages these "
-                    "templates use)",
+                    "Install TeX: brew install --cask mactex-no-gui, which is "
+                    "about 5 GB. BasicTeX is much smaller but lacks the packages "
+                    "these templates use",
                     "Install TeX Live: apt install texlive-latex-extra "
                     "texlive-luatex texlive-xetex",
                 ),
