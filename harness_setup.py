@@ -994,7 +994,7 @@ def main(argv: list[str] | None = None) -> int:
             # the user who most needed direction got a list of complaints and
             # nothing to do about it.
             print("\nNext step: fix the item(s) above, then run this again:")
-            print(f"    {sys.executable} harness_setup.py")
+            print("    uv run python harness_setup.py")
         else:
             first = "lite setup" if mode == "lite" else "setup-harness"
             print(f"\nNext step: open this folder in your agent (run `claude` or `codex` "
