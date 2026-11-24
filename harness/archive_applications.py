@@ -1,7 +1,7 @@
 """Move submitted applications to applied/, and archive folders older than 8 weeks.
 
 Every application lives in `documents/applications/<Company>_<Role>/`. This
-script does two things, and one call does both — which is why the apply and
+script does two things, and one call does both, which is why the apply and
 tracker workflows call it every run and no scheduled task is needed:
 
 1. **Move** folders whose tracker row carries a `submitted_date` into
@@ -60,7 +60,7 @@ def folder_created_at(folder: Path) -> float:
     anti-tamper hardening. It is a data-loss trap: `/apply-any` copies PDFs and
     .tex files into the folder, and any copy that preserves mtime (shutil.copy2,
     a downloaded posting PDF, a CV last edited years ago) made a brand-new
-    application instantly "8 weeks old" — zipped and deleted on the next run.
+    application instantly "8 weeks old", zipped and deleted on the next run.
     """
     marker = folder / CREATED_MARKER
     if marker.is_file():
@@ -106,7 +106,7 @@ def _archive_stem(name: str) -> Path:
     Deliberately built by string concatenation and never with Path.with_suffix.
 
     `with_suffix` replaces everything after the last dot, so for the very
-    ordinary folder name "Acme_Inc._Data_Analyst" it produced "Acme_Inc.zip" —
+    ordinary folder name "Acme_Inc._Data_Analyst" it produced "Acme_Inc.zip",
     while shutil.make_archive wrote "Acme_Inc._Data_Analyst.zip". The existence
     test and the written file were different paths, so the collision check never
     fired and a re-archived folder silently OVERWROTE the previous zip, after
@@ -126,7 +126,7 @@ def archive_due(now: float | None = None, dry_run: bool = False,
                 skip_open: bool = True) -> tuple[list[str], list[str]]:
     """Zip and remove application folders older than MAX_AGE_DAYS.
 
-    Returns (archived, protected) — the second list is folders old enough to
+    Returns (archived, protected), the second list is folders old enough to
     archive whose tracker row is still open, which are reported rather than
     silently kept so the user can see the archiver made a judgement call.
     """
@@ -214,7 +214,7 @@ def match_folder(company: str, role: str, names: list[str]) -> str:
         # The first-word key is a filter, not an identity: "Canadian Tire" and
         # "Canadian Nuclear Laboratories" share it. Left to the role score
         # alone, a row for one could land in the other's folder whenever the
-        # correct folder is absent — "Canadian_Tire_Data_Analyst" scores 2/3
+        # correct folder is absent, "Canadian_Tire_Data_Analyst" scores 2/3
         # for a Canadian Nuclear Laboratories data analyst, over the threshold.
         # So the folder's leading segment, everything before its first role
         # word, must be words this company actually has. That still allows the

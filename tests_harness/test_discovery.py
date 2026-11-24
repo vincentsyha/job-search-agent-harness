@@ -5,7 +5,7 @@ run but changes what the user is told:
 
 * all five scopes exist and are named (plan-M 38);
 * an unreadable source is reported as `unverified`, never as "no openings"
-  (plan-M 37) — the failure that silently removes an employer from a search;
+  (plan-M 37), the failure that silently removes an employer from a search;
 * zero-result runs are still logged, because a broken CLI and a quiet market
   produce identical output without the log;
 * the cost posture is printed *before* the run and invents no token arithmetic.
@@ -13,10 +13,13 @@ run but changes what the user is told:
 
 from __future__ import annotations
 
+import csv
+import importlib
 import json
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -111,7 +114,7 @@ class HardConstraintGate(unittest.TestCase):
 
 
 class PayDemotion(unittest.TestCase):
-    """Stated pay below the stated minimum demotes — with three boundaries.
+    """Stated pay below the stated minimum demotes, with three boundaries.
 
     The owner declined to touch upstream's scoring weights, so this lives in
     the harness's own shortlist step. Each boundary guards a distinct failure:
@@ -141,8 +144,8 @@ class PayDemotion(unittest.TestCase):
 class DiscoveryIsNotSplitBrained(unittest.TestCase):
     """REGRESSION: the documented /scrape never wrote seen_jobs.json.
 
-    Two /scrape implementations existed — this command and the upstream
-    job-scraper skill — with disjoint state. Upstream `/rank` reads *only*
+    Two /scrape implementations existed, this command and the upstream
+    job-scraper skill, with disjoint state. Upstream `/rank` reads *only*
     `job_scraper/seen_jobs.json` and stops with "run /scrape first" when it is
     empty, which is what a user saw immediately after running /scrape. The same
     file is the only cross-run dedup store, so a second run re-surfaced every
@@ -178,9 +181,6 @@ class RunLogging(unittest.TestCase):
         self.assertIn("including runs that found nothing", text)
 
     def test_run_log_writes_the_expected_columns(self):
-        import csv
-        import tempfile
-        import importlib
 
         with tempfile.TemporaryDirectory() as tmp:
             log = Path(tmp) / "run_log.csv"

@@ -3,15 +3,15 @@
 These three modules exist because of defects the post-build review found, and
 each defect was silent:
 
-* **status.py** — three writers used three vocabularies. A row `/outcome` wrote
+* **status.py**, three writers used three vocabularies. A row `/outcome` wrote
   as `applied` matched none of the workbook's six known values, so it counted as
   neither Open nor Closed and **vanished from the funnel** with no warning.
-* **tracker_row.py** — upstream's `/outcome` documents a 13-column create-header
+* **tracker_row.py**, upstream's `/outcome` documents a 13-column create-header
   with no `submitted_date`. The archiver reads that column to decide what moves
   to `applied/`, so on an outcome-created tracker **the move never fired,
   forever**. Rows were also hand-assembled as raw CSV by a language model, with
   quoting of free-text `notes`/`rationale` left to chance.
-* **rotate_backup.py** — two commands described keep-5 backups; nothing
+* **rotate_backup.py**, two commands described keep-5 backups; nothing
   implemented them.
 """
 

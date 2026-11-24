@@ -3,7 +3,7 @@
 
 Claude Code pipes a JSON blob to its statusline command on each update. That
 blob is the **only** channel through which a running agent can learn how full
-its context window is or how much of a subscription window has been consumed —
+its context window is or how much of a subscription window has been consumed,
 hooks receive no usage fields at all, and Codex exposes nothing programmatic.
 
 So this script does two jobs:
@@ -16,7 +16,7 @@ Register it during setup:
 
     claude config set statusLine.command "python harness/telemetry_statusline.py"
 
-    (or in .claude/settings.local.json —
+    (or in .claude/settings.local.json,
      never .claude/settings.json, which is guard-frozen)
 
 Honest caveats, repeated in the JSON itself so nobody reads a number without
@@ -25,7 +25,7 @@ them:
 * `context_window.used_percentage` counts **input tokens only**, so it
   understates true consumption.
 * It is null before the first API call of a session, and resets after
-  `/compact` — a low value can mean "fresh context", not "plenty of room".
+  `/compact`, a low value can mean "fresh context", not "plenty of room".
 * Rate-limit percentages are only present on Pro/Max plans.
 
 If any field is missing this writes what it has and marks the rest `null`. It

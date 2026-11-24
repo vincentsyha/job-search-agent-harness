@@ -1,4 +1,4 @@
-"""Tests for harness/fact_check.py — the Tier-1 deterministic truth gate.
+"""Tests for harness/fact_check.py, the Tier-1 deterministic truth gate.
 
 These run against the FICTIONAL demo register (evidence/register.example.yaml),
 so they assert the same result on any machine and no real career data is
@@ -8,16 +8,16 @@ Read the two regression cases first. Both pin defects that were found in live
 use of the private system this checker was ported from, and both are the kind
 a well-meaning refactor silently reintroduces:
 
-* `test_percent_spellings_are_equivalent` — a registered "22%" metric was
+* `test_percent_spellings_are_equivalent`, a registered "22%" metric was
   flagged as a fabrication whenever a draft wrote "22 percent", or whenever
   LaTeX's `22\\%` extracted as "22 %".
-* `test_posting_whitelist_requires_a_whole_number` — the posting whitelist was
+* `test_posting_whitelist_requires_a_whole_number`, the posting whitelist was
   a bare substring test, so a posting containing "2047" silently cleared an
   unregistered "47 percent" claim. That one let a package pass spuriously.
 
 A third pins a defect found while porting:
 
-* `test_common_english_words_are_not_technology_claims` — the lexicon contains
+* `test_common_english_words_are_not_technology_claims`, the lexicon contains
   Go, Spring, React and friends, and matching them in lowercased text reported
   "the spring sampling programme" as a technology claim.
 
@@ -72,7 +72,7 @@ class WriteDraft:
 
 class CleanFixture(unittest.TestCase):
     def test_clean_fixture_passes(self):
-        """False positives make the gate useless — the operator learns to ignore it."""
+        """False positives make the gate useless, the operator learns to ignore it."""
         code, out = run_checker(str(FIXTURES / "fixture_clean.txt"))
         self.assertEqual(code, 0, out)
         self.assertTrue(out.startswith("OK"), out)
@@ -92,9 +92,9 @@ class BadFixture(unittest.TestCase):
     def test_the_report_leads_with_the_likely_cause(self):
         """Wording, not strictness.
 
-        The old header called every finding a FABRICATION-RISK — accusing a job
+        The old header called every finding a FABRICATION-RISK, accusing a job
         seeker of lying about their own life when the usual cause is that a true
-        fact is not recorded yet — and buried that resolution third.
+        fact is not recorded yet, and buried that resolution third.
         """
         self.assertIn("just is not recorded yet", self.out)
         confirm_at = self.out.index("/fact")
@@ -147,7 +147,7 @@ class UnsupportedMetric(unittest.TestCase):
         whitelist so that page numbers and postcodes are not treated as claims.
         A claim carrying a unit nobody listed therefore passes Tier 1 and is
         left to the Tier-2 reviewer. When a real draft slips one through, the
-        fix is to add the unit — which is why this test asserts the ceiling
+        fix is to add the unit, which is why this test asserts the ceiling
         exists rather than asserting it is acceptable.
         """
         with WriteDraft("The programme reached 4,912 municipalities.\n") as draft:
@@ -156,7 +156,7 @@ class UnsupportedMetric(unittest.TestCase):
 
 
 class UnsupportedCredential(unittest.TestCase):
-    """plan-M test 17 — both halves."""
+    """plan-M test 17, both halves."""
 
     def test_unregistered_credential_is_blocked(self):
         with WriteDraft("Holder of the PMP designation.\n") as draft:
@@ -248,7 +248,7 @@ class MetricQualifiers(unittest.TestCase):
 
     `/fact` has always promised: record `qualifier_required: about` and "the
     qualifier then becomes mandatory in every rendering". Until check 4b the
-    promise was empty — an approximate figure could render as exact and pass.
+    promise was empty, an approximate figure could render as exact and pass.
     """
 
     def _register_with_qualified_metric(self) -> str:
@@ -327,7 +327,7 @@ class PositioningConstraints(unittest.TestCase):
 
         A candidate who really is a software engineer has no
         `programming_claims` entry in their register, and the family must then
-        be completely silent — otherwise this checker would be unusable for
+        be completely silent, otherwise this checker would be unusable for
         anyone in the industry it most often screens.
         """
         import yaml
@@ -456,14 +456,14 @@ class ReviewRegressions(unittest.TestCase):
         """Employment years used to be injected into the metric whitelist.
 
         Riley started at Northwind in 2020, which silently cleared any claim of
-        "2,020 <units>" — a fabricated headcount reading as evidence.
+        "2,020 <units>", a fabricated headcount reading as evidence.
         """
         with WriteDraft("The programme reached 2,020 participants.\n") as draft:
             code, out = run_checker(draft)
         self.assertNotEqual(code, 0, out)
 
     def test_credential_qualifier_required_at_every_occurrence(self):
-        """Qualified once, bare later — the bare one is what reads as earned.
+        """Qualified once, bare later, the bare one is what reads as earned.
 
         The qualifier is only checked within ~120 characters either side of the
         mention, so the two renderings are separated here by a realistic amount

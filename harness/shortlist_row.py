@@ -3,8 +3,8 @@
 
 Same reason `tracker_row.py` exists, and the same failure it prevents.
 `rationale` is free text written by a language model and routinely contains
-the commas and quotes a verdict needs — "states NOK 540,000; your minimum is
-620,000" — and hand-assembled CSV gets that wrong eventually rather than
+the commas and quotes a verdict needs, "states NOK 540,000; your minimum is
+620,000", and hand-assembled CSV gets that wrong eventually rather than
 never. A row whose `rationale` field bleeds into `deadline` silently stops
 `/today` warning about closing dates for every row read after it.
 

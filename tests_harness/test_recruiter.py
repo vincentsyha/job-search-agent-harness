@@ -5,11 +5,11 @@ The example in `examples/preferences.example.yaml` is the schema `/scrape`,
 a typo in it is a typo in every preferences file built from it. The tests worth
 reading:
 
-* `test_fit_sits_inside_its_tier` — the tier is a claim about the evidence, and
+* `test_fit_sits_inside_its_tier`, the tier is a claim about the evidence, and
   a stretch scored like core is exactly the overselling the pass must not do.
-* `test_preferences_without_positions_offer_the_pass_first` — a user onboarded
+* `test_preferences_without_positions_offer_the_pass_first`, a user onboarded
   before the pass existed would otherwise never be told about it.
-* `test_spec_fits_the_lite_budget` — `/lite` loads the spec on every lite
+* `test_spec_fits_the_lite_budget`, `/lite` loads the spec on every lite
   onboarding, so its size is a running cost, not a style choice.
 """
 

@@ -3,7 +3,7 @@
 The workbook is a *view*. The property that makes it safe to regenerate at will
 is that nothing is ever read back out of it, so it can never hold the only copy
 of anything. `test_regenerating_cannot_lose_a_csv_note` is the test that would
-fail if someone ever made it writable — which is the single change most likely
+fail if someone ever made it writable, which is the single change most likely
 to be proposed and most likely to destroy data.
 
 The folder matcher is shared between the archiver and the workbook so the two
@@ -26,6 +26,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "harness"))
+
+import subprocess
 
 import archive_applications as archiver  # noqa: E402
 import tracker_xlsx  # noqa: E402
@@ -75,7 +77,7 @@ class FolderMatcher(unittest.TestCase):
 
         Folder words are {senior, lab, technician}; the row's role supplies
         {technician, senior, laboratory}. "lab" does not equal "laboratory", so
-        the score is 2/3 = 0.67 — over the 0.6 threshold. That headroom is the
+        the score is 2/3 = 0.67, over the 0.6 threshold. That headroom is the
         point: folder names are abbreviations of posting titles, so an exact
         matcher would miss almost every real pair.
         """
@@ -221,7 +223,7 @@ class WorkbookGeneration(unittest.TestCase):
     def test_regenerating_cannot_lose_a_csv_note(self):
         """The workbook is a view. Regeneration must not touch the CSV at all.
 
-        If the workbook ever became a writer, this is the test that would fail —
+        If the workbook ever became a writer, this is the test that would fail,
         and it is the change most likely to be proposed, because 'let me just
         edit the status in Excel' is the obvious thing to want.
         """
@@ -232,7 +234,6 @@ class WorkbookGeneration(unittest.TestCase):
         self.assertIn("second round booked", before)
 
     def test_missing_csv_exits_cleanly_rather_than_crashing(self):
-        import subprocess
 
         proc = subprocess.run(
             [sys.executable, str(ROOT / "harness" / "tracker_xlsx.py"),
@@ -321,7 +322,7 @@ class Archiver(unittest.TestCase):
         `Acme_Inc.zip`, while make_archive wrote `Acme_Inc._Data_Analyst.zip`.
         The existence check and the written file were different paths, so the
         collision counter never fired and re-archiving a folder of the same name
-        silently overwrote the earlier zip — after the live folder had been
+        silently overwrote the earlier zip, after the live folder had been
         deleted. Company names ending "Inc." are the normal case.
         """
         future = time.time() + (archiver.MAX_AGE_DAYS + 1) * 86400

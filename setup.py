@@ -5,8 +5,8 @@ the root is a contract with pip: `pip install .` executes it with setuptools
 command arguments, which here used to mean an *interactive installer* running
 inside a package build. The installer was renamed to end that collision.
 
-This shim keeps the old habit working — `python setup.py` still runs the real
-installer — while refusing the packaging invocations pip makes.
+This shim keeps the old habit working, `python setup.py` still runs the real
+installer, while refusing the packaging invocations pip makes.
 """
 import sys
 

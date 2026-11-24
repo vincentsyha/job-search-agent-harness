@@ -74,7 +74,7 @@ BLOCKING_PATTERNS = [
 # blocking.
 #
 # GitHub URLs were blocking in the first version of this script and produced 71
-# hits, essentially all of them **required licence attribution** — the upstream
+# hits, essentially all of them **required licence attribution**, the upstream
 # author in CONTRIBUTING.md and CHANGELOG.md, the vendored humanizer's author,
 # the portal CLI authors. That content must ship; NOTICE.md and README exist
 # specifically to carry it. A check that fails the build on correct, mandatory
@@ -133,7 +133,7 @@ def is_allowed(match: str, line: str, label: str = "") -> bool:
     if re.search(r"\b(example|test|sample|acme)\b", lowered):
         return True
     # A marker merely elsewhere on the LINE excuses only the shape-based
-    # categories — a street-address or postal-code regex firing on
+    # categories, a street-address or postal-code regex firing on
     # "123 Hiring Street\\Example City" in a template snippet. It never
     # excuses an email, phone number, profile URL or key: those are exactly
     # what a real leak looks like, and "test" appears near real data all the

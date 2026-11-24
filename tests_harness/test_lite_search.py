@@ -24,6 +24,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "harness"))
 
+import io
+import json
+import subprocess
+from unittest import mock
+
 import lite_search as ls  # noqa: E402
 
 
@@ -220,9 +225,6 @@ class EveryBoardFails(unittest.TestCase):
     def test_exit_1_and_the_codex_network_pointer(self):
         """Codex's sandbox blocks the network by default, so every board fails at once;
         the output must say "could not search" and point at the fix, never "no jobs"."""
-        import io
-        import subprocess
-        from unittest import mock
 
         tmp = Path(tempfile.mkdtemp(prefix="lite-fail-"))
         try:
@@ -253,10 +255,7 @@ class Save(unittest.TestCase):
     every posting twice, by hand)."""
 
     def test_row_is_fetched_and_archived_where_apply_package_looks(self):
-        import json
-        import subprocess
         from types import SimpleNamespace
-        from unittest import mock
 
         tmp = Path(tempfile.mkdtemp(prefix="lite-save-"))
         try:
@@ -287,7 +286,6 @@ class Driver(unittest.TestCase):
     double-quoted rationale turned "$85,000" into "5,000")."""
 
     def setUp(self):
-        import json
         self.json = json
         self.tmp = Path(tempfile.mkdtemp(prefix="lite-driver-"))
         (self.tmp / "state").mkdir()
@@ -300,7 +298,6 @@ class Driver(unittest.TestCase):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     def run_main(self, *args):
-        from unittest import mock
         with mock.patch("builtins.print"), mock.patch.object(ls.sys.stdout, "reconfigure"):
             return ls.main(["--root", str(self.tmp), *args])
 
@@ -315,7 +312,6 @@ class Driver(unittest.TestCase):
         self.assertIn("Analyst $85,000", text)
 
     def test_package_uses_the_stored_values_and_archives_a_pasted_posting(self):
-        from unittest import mock
         self.run_main("--start")
         meta = self.json.loads((self.tmp / "state" / "lite-apply.json").read_text(encoding="utf-8"))
         (self.tmp / meta["folder"] / "job_posting.md").write_text("posting text", encoding="utf-8")
@@ -330,7 +326,6 @@ class Driver(unittest.TestCase):
         self.assertIn("qualified", (self.tmp / "shortlist.csv").read_text(encoding="utf-8"))
 
     def test_applied_marks_the_posting_in_progress_submitted(self):
-        from unittest import mock
         import tracker_row
         self.run_main("--start")
         tracker = self.tmp / "tracker.csv"

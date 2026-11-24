@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """What needs doing today, and what to type to do it.
 
-Every ingredient for this already existed — the tracker CSV, the run log, the
-per-application outcome files, the shortlist — and nothing assembled them. A
+Every ingredient for this already existed, the tracker CSV, the run log, the
+per-application outcome files, the shortlist, and nothing assembled them. A
 user opening a session on Monday had no way to ask "where am I?" short of
 opening a spreadsheet and reading it themselves.
 
@@ -45,7 +45,7 @@ DATE_IN_NOTE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 
 def read_csv(path: Path) -> list[dict]:
     """Read shortlist.csv / run_log.csv. The TRACKER goes through
-    `tracker_row.read_rows` instead — it heals a row with an unquoted comma,
+    `tracker_row.read_rows` instead, it heals a row with an unquoted comma,
     which this reader used to die on with `AttributeError: 'list' object has
     no attribute 'strip'` while the writer accepted the same row happily.
     """
@@ -73,7 +73,7 @@ def days_quiet(row: dict, today: date) -> int | None:
     """Days since the last thing that happened on this application.
 
     Counts from the most recent of the application date and any dated entry in
-    `notes` — so a logged follow-up resets the clock. The workbook used to count
+    `notes`, so a logged follow-up resets the clock. The workbook used to count
     from the application date alone, which meant it kept saying a follow-up was
     due after one had been sent.
     """

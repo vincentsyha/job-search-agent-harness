@@ -1,19 +1,19 @@
 """Tests for setup.py's probes and doctor table.
 
 Every probe is exercised against a *mocked* PATH and mocked subprocess calls,
-so the suite asserts the same behaviour on any machine — including CI, which
+so the suite asserts the same behaviour on any machine, including CI, which
 has no TeX, no Bun and no agent runtime.
 
 The cases worth reading are the ones that pin down defects the build actually
 hit, because those are what a future refactor is most likely to undo:
 
-* `test_bun_present_but_panicking_is_degraded` — Bun's stock build installs
+* `test_bun_present_but_panicking_is_degraded`, Bun's stock build installs
   fine on a CPU without AVX2 and then panics on every call. A presence-only
   check reports green on a machine where all six portal CLIs are dead.
-* `test_poppler_needs_pdfinfo_too` — Git for Windows ships pdftotext but not
+* `test_poppler_needs_pdfinfo_too`, Git for Windows ships pdftotext but not
   pdfinfo, so checking pdftotext alone reports poppler present when upstream's
   PDF verification cannot run.
-* `test_tool_on_persistent_path_only_says_restart_shell` — a tool installed
+* `test_tool_on_persistent_path_only_says_restart_shell`, a tool installed
   seconds ago is on the registry PATH but not in the running shell; reporting
   MISSING sends the user round in circles re-installing it.
 """
@@ -27,6 +27,8 @@ from pathlib import Path
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import subprocess
 
 import harness_setup as setup  # noqa: E402  (the path shim above must run first)
 
@@ -96,7 +98,7 @@ class PopplerCheck(unittest.TestCase):
         self.assertEqual(check.status, setup.OK)
 
     def test_poppler_needs_pdfinfo_too(self):
-        """Git for Windows ships pdftotext only — that is not poppler."""
+        """Git for Windows ships pdftotext only, that is not poppler."""
         with mock.patch.object(setup.shutil, "which",
                                fake_which({"pdftotext": "/git/pdftotext"})), \
              mock.patch.object(setup, "_persistent_path_dirs", return_value=[]):
@@ -179,7 +181,6 @@ class PlanAndMode(unittest.TestCase):
         self.assertEqual(("other", "lite"), self.pick("9"))
 
     def test_choice_is_recorded_once_and_never_overwrites(self):
-        import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             setup.seed_preferences("claude-pro", "lite", root)
@@ -190,7 +191,6 @@ class PlanAndMode(unittest.TestCase):
             self.assertEqual(text, (root / "preferences.yaml").read_text(encoding="utf-8"))
 
     def test_standard_is_recorded_as_the_focused_usage_mode(self):
-        import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             setup.seed_preferences("claude-max", "standard", Path(tmp))
             self.assertIn("mode: focused",
@@ -439,7 +439,6 @@ class SetupShim(unittest.TestCase):
     """
 
     def _run(self, *args: str):
-        import subprocess
         return subprocess.run(
             [sys.executable, str(Path(setup.__file__).parent / "setup.py"),
              *args],
@@ -473,7 +472,6 @@ class CodexNetworkCheck(unittest.TestCase):
     it, and a board CLI that cannot connect looks like a quiet board."""
 
     def check(self, config: str | None):
-        import tempfile
         with tempfile.TemporaryDirectory() as home:
             if config is not None:
                 (Path(home) / "config.toml").write_text(config, encoding="utf-8")

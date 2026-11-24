@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Append one search-run record. Feeds the workbook's Search Runs tab.
 
-Called by /scrape after every run, including runs that found nothing — a search
+Called by /scrape after every run, including runs that found nothing, a search
 that returned zero results is a fact worth keeping, because a board that goes
 quiet for a fortnight looks identical to a board that broke.
 

@@ -43,7 +43,7 @@ APPLICATIONS_DIR = os.path.join(ROOT, "documents", "applications")
 # claimed in its comment to include location/rationale/submitted_date and did
 # not, and nothing read it.
 
-# Status classification lives in harness/status.py — one vocabulary shared with
+# Status classification lives in harness/status.py, one vocabulary shared with
 # the archiver, so a row written by upstream's /outcome ("applied", "interview")
 # lands in the same bucket as one written by /apply-any ("in_progress").
 # Previously anything outside these six sets counted as neither Open nor Closed
