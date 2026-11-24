@@ -1,0 +1,164 @@
+"""Contract tests for the discovery layer (P5): scopes and modes.
+
+The properties pinned here are the ones whose loss is invisible in a passing
+run but changes what the user is told:
+
+* all five scopes exist and are named;
+* zero-result runs are still logged, because a broken CLI and a quiet market
+  produce identical output without the log.
+"""
+
+from __future__ import annotations
+
+import csv
+import importlib
+import json
+import re
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+SCRAPE = ROOT / ".claude" / "commands" / "scrape.md"
+BOARD_DOC = ROOT / "docs" / "board-intelligence.md"
+JOBBANK = ROOT / ".agents" / "skills" / "jobbank-ca-search"
+
+
+def flat(path: Path) -> str:
+    return re.sub(r"\s+", " ", path.read_text(encoding="utf-8").lower())
+
+
+class SearchScopes(unittest.TestCase):
+    def setUp(self):
+        self.text = flat(SCRAPE)
+
+    def test_all_five_scopes_are_documented(self):
+        for scope in ("--scope board", "--scope company", "--scope companies",
+                      "--scope boards", "--scope all"):
+            self.assertIn(scope, self.text)
+
+    def test_both_rosters_are_described_as_living(self):
+        self.assertIn("living lists", self.text)
+        self.assertIn("nothing needs re-onboarding", self.text)
+
+    def test_unknown_source_is_reported_not_silently_narrowed(self):
+        self.assertIn("rather than silently searching a subset", self.text)
+
+
+class UsageModes(unittest.TestCase):
+    def setUp(self):
+        self.text = flat(SCRAPE)
+
+    def test_three_modes_are_documented(self):
+        for mode in ("focused", "balanced", "full"):
+            self.assertIn(mode, self.text)
+
+    def test_focused_generates_no_documents(self):
+        self.assertIn("max_packages_per_run: 0", self.text)
+
+    def test_caps_apply_within_any_scope(self):
+        self.assertIn("caps apply **within** any scope",
+                      SCRAPE.read_text(encoding="utf-8").lower())
+
+
+class DiscoveryIsNotSplitBrained(unittest.TestCase):
+    """REGRESSION: the documented /scrape never wrote seen_jobs.json.
+
+    Two /scrape implementations existed, this command and the upstream
+    job-scraper skill, with disjoint state. Upstream `/rank` reads *only*
+    `job_scraper/seen_jobs.json` and stops with "run /scrape first" when it is
+    empty, which is what a user saw immediately after running /scrape. The same
+    file is the only cross-run dedup store, so a second run re-surfaced every
+    posting the user had already dismissed.
+    """
+
+    def setUp(self):
+        self.text = flat(SCRAPE)
+
+    def test_delegates_fetching_to_the_job_scraper_skill(self):
+        self.assertIn("job-scraper", self.text)
+        self.assertIn(".claude/skills/job-scraper/skill.md", self.text)
+
+    def test_names_the_dedup_store_that_rank_depends_on(self):
+        self.assertIn("seen_jobs.json", self.text)
+
+    def test_explains_why_skipping_it_breaks_downstream_commands(self):
+        self.assertIn("/rank", self.text)
+        self.assertIn("/upskill", self.text)
+
+    def test_company_results_join_the_same_memory(self):
+        self.assertIn("company:<name>", self.text.replace(" ", ""))
+
+    def test_verdicts_are_mapped_to_ranks_bands(self):
+        """Two vocabularies for one judgement look like disagreement."""
+        for band in ("strong fit", "good fit", "moderate fit"):
+            self.assertIn(band, self.text)
+
+
+class RunLogging(unittest.TestCase):
+    def test_empty_runs_are_still_logged(self):
+        text = flat(SCRAPE)
+        self.assertIn("including runs that found nothing", text)
+
+    def test_run_log_writes_the_expected_columns(self):
+
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "run_log.csv"
+            run_log = importlib.import_module("run_log")
+            original = run_log.LOG
+            run_log.LOG = str(log)
+            try:
+                sys.argv = ["run_log.py", "--portal", "freehire",
+                            "--query", "analyst", "--found", "0", "--new", "0",
+                            "--notes", "board quiet"]
+                run_log.main()
+            finally:
+                run_log.LOG = original
+            with log.open(encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+        self.assertEqual(1, len(rows))
+        self.assertEqual("freehire", rows[0]["portal"])
+        self.assertEqual("0", rows[0]["found"])
+        self.assertRegex(rows[0]["date"], r"^\d{4}-\d{2}-\d{2}$")
+
+
+class JobBankCaPort(unittest.TestCase):
+    def test_skill_and_cli_are_present(self):
+        for path in ("SKILL.md", "url-reference.md", "cli/package.json",
+                     "cli/src/cli.ts"):
+            self.assertTrue((JOBBANK / path).is_file(), path)
+
+    def test_no_owner_location_identifiers_survived_the_port(self):
+        """The private CLI used the owner's own city in every example."""
+        offenders = []
+        for path in JOBBANK.rglob("*"):
+            if not path.is_file() or "node_modules" in path.parts:
+                continue
+            if path.suffix not in {".ts", ".md", ".json"}:
+                continue
+            text = path.read_text(encoding="utf-8", errors="replace")
+            if re.search(r"\bCalgary\b", text):
+                offenders.append(str(path.relative_to(JOBBANK)))
+        self.assertEqual([], offenders)
+
+    def test_province_lookup_survived_sanitisation(self):
+        """Sanitising examples must not have damaged functional code."""
+        source = (JOBBANK / "cli" / "src" / "commands" / "search.ts").read_text(
+            encoding="utf-8"
+        )
+        for province in ("alberta", "manitoba", "british columbia"):
+            self.assertIn(province, source.lower())
+
+    def test_package_manifest_has_no_lifecycle_scripts(self):
+        """Same rule upstream's security guard applies to its own CLIs."""
+        manifest = json.loads((JOBBANK / "cli" / "package.json").read_text(
+            encoding="utf-8"
+        ))
+        forbidden = {"preinstall", "install", "postinstall", "prepare", "prepack"}
+        self.assertEqual(set(), forbidden & set(manifest.get("scripts", {})))
+        self.assertNotIn("trustedDependencies", manifest)
+
+
+if __name__ == "__main__":
+    unittest.main()

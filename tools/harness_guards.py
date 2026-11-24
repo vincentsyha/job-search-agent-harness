@@ -77,7 +77,7 @@ FORBIDDEN_TRACKED_PREFIXES = [
     "documents/portfolio/",
 ]
 
-# The only candidate-shaped content allowed to ship (plan-D rule 4).
+# The only candidate-shaped content allowed to ship.
 ALLOWED_CANDIDATE_CONTENT = [
     "evidence/register.example.yaml",
     "examples/preferences.example.yaml",
@@ -193,7 +193,7 @@ def check_demo_content_is_confined() -> None:
             continue
         # Upstream's own stock templates and their example files are expected.
         if path.startswith(("cv/", "cover_letters/", "templates/", ".claude/",
-                            "docs/", "tests/", "tests_harness/", "tools/")):
+                            "docs/", "tests/", "tools/")):
             continue
         suspicious.append(path)
     if suspicious:

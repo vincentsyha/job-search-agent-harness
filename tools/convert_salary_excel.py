@@ -25,10 +25,10 @@ The script auto-detects the header row and column layout. For Excel files
 with paired count/index columns per category, it groups them automatically.
 """
 
-import json
-import sys
 import argparse
+import json
 import re
+import sys
 from pathlib import Path
 
 try:

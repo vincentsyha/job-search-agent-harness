@@ -48,6 +48,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import ats_check
+import tex_to_md
+import tracker_row
+from archive_applications import CREATED_MARKER
+
 HARNESS_DIR = Path(__file__).resolve().parent
 ROOT = HARNESS_DIR.parent
 APPLICATIONS_DIR = ROOT / "documents" / "applications"
@@ -58,12 +63,6 @@ REGISTER = ROOT / "evidence" / "register.yaml"
 # title, a company and some requirements. Set well below any real posting so it
 # only ever catches the stub.
 MIN_POSTING_CHARS = 400
-
-sys.path.insert(0, str(HARNESS_DIR))
-import ats_check  # noqa: E402
-import tex_to_md  # noqa: E402
-import tracker_row  # noqa: E402
-from archive_applications import CREATED_MARKER  # noqa: E402
 
 ATS_REPORT = "ats_report.md"
 ATS_KEYWORDS = "ats_keywords.txt"

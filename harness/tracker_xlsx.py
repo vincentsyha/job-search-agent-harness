@@ -22,19 +22,16 @@ import os
 import sys
 from pathlib import Path
 
+import status
+import today as today_mod
+import tracker_row
+from archive_applications import RESERVED, match_folder
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_CSV = os.path.join(ROOT, "job_search_tracker.csv")
 DEFAULT_OUT = os.path.join(ROOT, "Job_Search_Tracker.xlsx")
 RUN_LOG = os.path.join(ROOT, "run_log.csv")
 SHORTLIST = os.path.join(ROOT, "shortlist.csv")
-
-# Folder-name matching is shared with the archiver so the workbook's links and
-# the applied/ move can never disagree about which folder a row belongs to.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from archive_applications import RESERVED, match_folder  # noqa: E402
-import status  # noqa: E402
-import today as today_mod  # noqa: E402
-import tracker_row  # noqa: E402
 
 APPLICATIONS_DIR = os.path.join(ROOT, "documents", "applications")
 

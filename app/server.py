@@ -373,7 +373,7 @@ def post_open(h, _q):
     if target.is_file() and target.suffix.lower() not in (".pdf", ".docx", ".md"):
         raise Problem(400, "Candor only opens folders, PDFs and documents.")  # never a script
     if os.name == "nt":
-        os.startfile(target)  # noqa: S606 - a path confined to documents/
+        os.startfile(target)
     else:
         subprocess.Popen(["open" if sys.platform == "darwin" else "xdg-open", str(target)])
     return {"ok": True}

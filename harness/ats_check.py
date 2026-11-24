@@ -30,9 +30,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-HARNESS_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(HARNESS_DIR))
-import tex_to_md  # noqa: E402
+import tex_to_md
 
 MAX_KEYWORDS = 30
 # Fewer letters and digits than this is no text layer at all: an image-only

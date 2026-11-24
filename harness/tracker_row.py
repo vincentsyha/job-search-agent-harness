@@ -33,13 +33,12 @@ import sys
 from datetime import date
 from pathlib import Path
 
+import rotate_backup
+import status as status_mod
+
 HARNESS_DIR = Path(__file__).resolve().parent
 ROOT = HARNESS_DIR.parent
 TRACKER_CSV = ROOT / "job_search_tracker.csv"
-
-sys.path.insert(0, str(HARNESS_DIR))
-import rotate_backup  # noqa: E402
-import status as status_mod  # noqa: E402
 
 # The full header. Upstream's 13 columns in upstream's order, plus the three
 # harness columns. Order matters: anything reading by position (a human in

@@ -96,7 +96,7 @@ exists, and a count on its own is not actionable.
 ## Self-test
 
 ```
-uv run python -m unittest tests_harness.test_tracker
+uv run pytest tests/harness/test_tracker.py
 ```
 
 Covers the four tabs, the Open/Closed split, hyperlink generation, regenerate-twice

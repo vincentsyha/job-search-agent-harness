@@ -40,14 +40,13 @@ import time
 from datetime import date
 from pathlib import Path
 
+import run_log
+import shortlist_row
+import tracker_row
 import yaml
 
 HARNESS_DIR = Path(__file__).resolve().parent
 ROOT = HARNESS_DIR.parent
-sys.path.insert(0, str(HARNESS_DIR))
-import run_log  # noqa: E402
-import shortlist_row  # noqa: E402
-import tracker_row  # noqa: E402
 
 # Each board's SKILL.md documents its own flags. Most share `search -q <text> --limit N
 # --format json`; these are the documented exceptions. A board added later with

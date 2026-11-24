@@ -38,7 +38,7 @@ Usage percentages are never printed (§5).
 | `state/` | `HANDOFF.md`, `session-log.md`, `telemetry.json` — the continuity spine. |
 | `harness/` | Runtime-neutral Python: fact gate, tracker workbook, archiver, run log, `.md` mirror, telemetry. |
 | `.agents/skills/<workflow>/` | Thin Codex pointer skills, one per workflow (`$name`). They add no behaviour; the command files are the procedure. |
-| `docs/` | `board-intelligence.md`, `latex-gotchas.md`, and the build/plan record. |
+| `docs/` | `board-intelligence.md`, `latex-gotchas.md`, `app-build/API.md`, and the README images. |
 | `graphify-out/` | Optional, gitignored: a knowledge graph of this repo. When present, answer architecture questions from it (`graphify query "..."`) before grepping. |
 
 ### Harness workflows

@@ -1,5 +1,10 @@
 # Setup Guide
 
+Upstream's manual install, kept as a fallback. `uv run python harness_setup.py` is the
+supported path: it checks every prerequisite below, prints a per-platform install command
+for anything missing, and installs it. Use this page when you would rather do it by hand,
+or when the doctor reports something it cannot fix.
+
 Step-by-step instructions for getting the AI Job Search framework running.
 
 ## 1. Prerequisites
@@ -239,8 +244,7 @@ If you have salary data (from a union, salary survey, Glassdoor, or personal res
 1. **Option A:** Create `salary_data.json` manually in the repo root (see `tools/README_SALARY_TOOL.md` for the format)
 2. **Option B:** Convert from Excel:
    ```bash
-   pip install openpyxl
-   python3 tools/convert_salary_excel.py path/to/salary-data.xlsx --source "My Salary Data 2025"
+   uv run --with openpyxl python tools/convert_salary_excel.py path/to/salary-data.xlsx --source "My Salary Data 2025"
    ```
 
 This creates `salary_data.json` which the `/apply` workflow uses for salary benchmarking. If you skip this step, salary lookup is simply omitted.
@@ -295,7 +299,7 @@ Upstream keeps improving the methodology files your fork has personalized, so pl
    ```bash
    git remote add upstream https://github.com/MadsLorentzen/ai-job-search.git   # first time only, if you cloned your own fork
    git fetch upstream    # or origin, if you cloned the template directly
-   python3 tools/check_upstream_updates.py
+   uv run python tools/check_upstream_updates.py
    ```
    It compares the `framework_version` markers in your framework files against upstream and lists exactly which methodology files changed, with the diff command for each.
 3. **Merge normally.** `git merge upstream/master` (or `git pull`) three-way-merges upstream's edits around your personalization; because methodology edits rarely touch the lines `/setup` filled in, most updates land cleanly. A conflict in a personalized file is a *feature*, not a failure — it means upstream changed methodology in a section you customized, and the version marker plus its changelog commit tell you why. Resolve by keeping your data and adopting the methodology change around it.

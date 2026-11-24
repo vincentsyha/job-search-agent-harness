@@ -17,11 +17,10 @@ Usage:
     uv run python salary_lookup.py --list-all
 """
 
-import json
-import sys
-import re
 import argparse
-import unicodedata
+import json
+import re
+import sys
 from pathlib import Path
 
 DATA_FILE = Path(__file__).parent / "salary_data.json"
@@ -336,7 +335,7 @@ def format_entry(entry, metadata):
                     diff_str = ""
                 lines.append(f"  {display_label:<22} {count_str:>6} {index_str:>8}  {diff_str:>10}")
 
-        lines.append(f"\n  * N/A = Too few employees to publish (privacy)")
+        lines.append("\n  * N/A = Too few employees to publish (privacy)")
         if metadata.get("baseline_description"):
             lines.append(f"  {metadata['baseline_description']}")
         else:

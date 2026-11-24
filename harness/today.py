@@ -26,12 +26,11 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
+import status as status_mod
+import tracker_row
+
 HARNESS_DIR = Path(__file__).resolve().parent
 ROOT = HARNESS_DIR.parent
-
-sys.path.insert(0, str(HARNESS_DIR))
-import status as status_mod  # noqa: E402
-import tracker_row  # noqa: E402
 
 # No module-level paths here on purpose: every reader below takes `root` and
 # builds its own, so a test (or a workbook built from an archived tracker) can

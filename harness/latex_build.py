@@ -26,10 +26,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import ats_check
 from pypdf import PdfReader
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import ats_check  # noqa: E402  (shares its pdftotext text extraction)
 
 TIMEOUT_S = 600  # a fresh MiKTeX installs packages on first use, which takes minutes
 PAGE_NUMBER = re.compile(r"^\d+\s*/\s*\d+$")

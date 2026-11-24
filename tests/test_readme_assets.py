@@ -10,6 +10,7 @@ not this project's — and the owner chose a text-only README, so that assertion
 is gone. The useful half, that any referenced image must exist, is unchanged.
 This is the only edited upstream-owned file; see NOTICE.md.
 """
+
 import re
 import unittest
 from pathlib import Path

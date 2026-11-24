@@ -1,0 +1,543 @@
+"""Tests for harness/fact_check.py, the Tier-1 deterministic truth gate.
+
+These run against the FICTIONAL demo register (evidence/register.example.yaml),
+so they assert the same result on any machine and no real career data is
+involved.
+
+Read the two regression cases first. Both pin defects that were found in live
+use of the private system this checker was ported from, and both are the kind
+a well-meaning refactor silently reintroduces:
+
+* `test_percent_spellings_are_equivalent`, a registered "22%" metric was
+  flagged as a fabrication whenever a draft wrote "22 percent", or whenever
+  LaTeX's `22\\%` extracted as "22 %".
+* `test_posting_whitelist_requires_a_whole_number`, the posting whitelist was
+  a bare substring test, so a posting containing "2047" silently cleared an
+  unregistered "47 percent" claim. That one let a package pass spuriously.
+
+A third pins a defect found while porting:
+
+* `test_common_english_words_are_not_technology_claims`, the lexicon contains
+  Go, Spring, React and friends, and matching them in lowercased text reported
+  "the spring sampling programme" as a technology claim.
+
+If a fixture fails after a register edit, the fixture is usually right: a fact
+recorded loosely enough to let a planted fabrication through is recorded wrong.
+"""
+
+from __future__ import annotations
+
+import os
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+CHECKER = ROOT / "harness" / "fact_check.py"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
+# The demo register stands in for a user's real evidence/register.yaml, which
+# is gitignored and absent on a fresh clone and in CI.
+REGISTER = ROOT / "evidence" / "register.example.yaml"
+
+
+def run_checker(*args: str) -> tuple[int, str]:
+    proc = subprocess.run(
+        [sys.executable, str(CHECKER), "--register", str(REGISTER), *args],
+        capture_output=True, text=True, cwd=str(ROOT),
+    )
+    return proc.returncode, proc.stdout + proc.stderr
+
+
+class WriteDraft:
+    """Context manager for a throwaway draft file."""
+
+    def __init__(self, text: str, suffix: str = ".txt"):
+        self.text = text
+        self.suffix = suffix
+
+    def __enter__(self) -> str:
+        handle = tempfile.NamedTemporaryFile(
+            "w", suffix=self.suffix, delete=False, encoding="utf-8"
+        )
+        handle.write(self.text)
+        handle.close()
+        self.path = handle.name
+        return self.path
+
+    def __exit__(self, *exc):
+        os.unlink(self.path)
+
+
+class CleanFixture(unittest.TestCase):
+    def test_clean_fixture_passes(self):
+        """False positives make the gate useless, the operator learns to ignore it."""
+        code, out = run_checker(str(FIXTURES / "fixture_clean.txt"))
+        self.assertEqual(code, 0, out)
+        self.assertTrue(out.startswith("OK"), out)
+
+
+class BadFixture(unittest.TestCase):
+    """The fabrication test from the owner's guide, in mechanical form."""
+
+    def setUp(self):
+        self.code, self.out = run_checker(str(FIXTURES / "fixture_bad.txt"))
+
+    def test_bad_fixture_is_blocked(self):
+        self.assertNotEqual(self.code, 0, self.out)
+        self.assertIn("unsupported claim", self.out)
+        self.assertIn("on hold", self.out)
+
+    def test_the_report_leads_with_the_likely_cause(self):
+        """Wording, not strictness.
+
+        The old header called every finding a FABRICATION-RISK, accusing a job
+        seeker of lying about their own life when the usual cause is that a true
+        fact is not recorded yet, and buried that resolution third.
+        """
+        self.assertIn("just is not recorded yet", self.out)
+        confirm_at = self.out.index("/fact")
+        fix_draft_at = self.out.index("Overstated?")
+        self.assertLess(confirm_at, fix_draft_at)
+        self.assertNotIn("FABRICATION", self.out)
+
+    def test_editing_the_register_is_still_ruled_out(self):
+        """The gate is exactly as strict as before."""
+        self.assertIn("Editing the register to silence a line is not on that list",
+                      self.out)
+
+    def test_every_planted_class_is_named(self):
+        expected = {
+            "12,000 users": "unregistered metric",
+            "7 years": "unregistered tenure figure",
+            "2019 - 2026": "date range outside every registered span",
+            "Docker": "unregistered technology",
+            "AWS Certified Solutions Architect": "unregistered credential",
+            "Google Data Analytics": "in-progress credential without its qualifier",
+            "software engineer": "positioning constraint: developer self-description",
+            "proficient in python": "positioning constraint: language fluency",
+            "coded": "positioning constraint: bare build verb",
+        }
+        for needle, why in expected.items():
+            self.assertIn(needle, self.out, f"{why} was not reported:\n{self.out}")
+
+    def test_exit_code_counts_the_red_lines(self):
+        self.assertGreaterEqual(self.code, 7, self.out)
+
+
+class UnsupportedMetric(unittest.TestCase):
+    def test_planted_numeral_not_in_register_is_blocked(self):
+        with WriteDraft("The programme reached 4,912 households last year.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0)
+        self.assertIn("4912", out.replace(",", ""))
+
+    def test_registered_metric_passes(self):
+        with WriteDraft("Turnaround time fell 22 percent after the redesign.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+    def test_numeral_with_an_unlisted_unit_is_a_known_ceiling(self):
+        """Documents the gate's real limit rather than implying it has none.
+
+        The numeral check fires only for units in NUMERAL_RE, which is a
+        whitelist so that page numbers and postcodes are not treated as claims.
+        A claim carrying a unit nobody listed therefore passes Tier 1 and is
+        left to the Tier-2 reviewer. When a real draft slips one through, the
+        fix is to add the unit, which is why this test asserts the ceiling
+        exists rather than asserting it is acceptable.
+        """
+        with WriteDraft("The programme reached 4,912 municipalities.\n") as draft:
+            code, _ = run_checker(draft)
+        self.assertEqual(code, 0)
+
+
+class UnsupportedCredential(unittest.TestCase):
+    def test_unregistered_credential_is_blocked(self):
+        with WriteDraft("Holder of the PMP designation.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0)
+        self.assertIn("PMP", out)
+
+    def test_in_progress_credential_without_qualifier_is_blocked(self):
+        with WriteDraft(
+            "Riley holds the Google Data Analytics Professional Certificate.\n"
+        ) as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+        self.assertIn("in progress", out)
+
+    def test_in_progress_credential_with_qualifier_passes(self):
+        with WriteDraft(
+            "Riley is completing the Google Data Analytics Professional "
+            "Certificate, currently in progress.\n"
+        ) as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+
+class DateRanges(unittest.TestCase):
+    def test_range_outside_every_span_is_blocked(self):
+        with WriteDraft("Northwind Analytical Services, 2014 - 2019.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+
+    def test_range_inside_a_registered_span_passes(self):
+        with WriteDraft("Northwind Analytical Services, 2020 - 2022.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+    def test_back_to_back_titles_cover_the_whole_tenure(self):
+        """Technician 2020-2022 then Senior 2022-2024 at one employer: "2020 - 2024"
+        is true and red-lined ("does not fit the registered span") until the
+        spans were merged. Found by the lite-mode end-to-end run."""
+        with WriteDraft("Northwind Analytical Services, 2020 - 2024.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+    def test_a_gap_between_titles_is_never_bridged(self):
+        import fact_check
+
+        def spans(*titles):
+            return fact_check.employment_spans({"employers": [{"name": "Acme", "titles": [
+                {"start": s, "end": e} for s, e in titles]}]})
+
+        self.assertNotIn(("Acme", 2015, 2020), spans(("2015-01", "2016-06"), ("2019-01", "2020-01")))
+        # Adjacent years but a 23-month gap: a year-only merge bridged this.
+        self.assertNotIn(("Acme", 2015, 2023), spans(("2015-03", "2019-01"), ("2020-12", "2023-06")))
+        # The month after the previous end is back-to-back, and merges.
+        self.assertIn(("Acme", 2020, 2024), spans(("2020-08", "2022-09"), ("2022-10", "2024-02")))
+        # An open-ended second title keeps the merged tenure open.
+        self.assertIn(("Acme", 2010, 9999), spans(("2010-01", "2012-01"), ("2012-02", "")))
+
+
+class LiteNegativeControl(unittest.TestCase):
+    """The lite end-to-end run planted three fabrications the gate let through. In
+    lite mode this gate is the only check, so each is pinned here."""
+
+    def test_a_banned_phrasing_the_register_declares_blocks(self):
+        # The demo register's management_claims constraint bans "managed a team of".
+        with WriteDraft("Managed a team of 12 volunteers at the watershed alliance.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+        self.assertIn("banned phrasing", out)
+
+    def test_an_unregistered_employer_in_an_entry_header_blocks(self):
+        entry = "\\cventry{2020--2022}{Laboratory Technician}{Acme Laboratories Ltd}{Winnipeg}{}{}\n"
+        with WriteDraft(entry, suffix=".tex") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+        self.assertIn("employer or institution is not in the register", out)
+
+    def test_registered_employers_and_institutions_pass(self):
+        entries = ("\\cventry{2020--2022}{Laboratory Technician}{Northwind Analytical Services}"
+                   "{Winnipeg}{}{}\n\\cventry{2016--2020}{BSc}{University of Northern Lakes}{}{}{}\n")
+        with WriteDraft(entries, suffix=".tex") as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+
+class MetricQualifiers(unittest.TestCase):
+    """`qualifier_required` on a metric is enforced, not just documented.
+
+    `/fact` has always promised: record `qualifier_required: about` and "the
+    qualifier then becomes mandatory in every rendering". Until check 4b the
+    promise was empty, an approximate figure could render as exact and pass.
+    """
+
+    def _register_with_qualified_metric(self) -> str:
+        import yaml
+
+        register = yaml.safe_load(REGISTER.read_text(encoding="utf-8"))
+        register["metrics"].append({
+            "value": "1,900",
+            "claim": "records covered by the demo migration",
+            "qualifier_required": "about",
+            "aliases": ["1,900 records"],
+            "source": "owner-confirmed 2026-08-06",
+        })
+        handle = tempfile.NamedTemporaryFile(
+            "w", suffix=".yaml", delete=False, encoding="utf-8"
+        )
+        yaml.safe_dump(register, handle, allow_unicode=True)
+        handle.close()
+        return handle.name
+
+    def _run(self, register_path: str, draft: str) -> tuple[int, str]:
+        proc = subprocess.run(
+            [sys.executable, str(CHECKER), "--register", register_path, draft],
+            capture_output=True, text=True, cwd=str(ROOT),
+        )
+        return proc.returncode, proc.stdout + proc.stderr
+
+    def test_metric_without_required_qualifier_is_blocked(self):
+        reg = self._register_with_qualified_metric()
+        try:
+            with WriteDraft("Migrated 1,900 records to the new system.\n") as draft:
+                code, out = self._run(reg, draft)
+            self.assertNotEqual(code, 0, out)
+            self.assertIn('qualifier "about"', out)
+        finally:
+            os.unlink(reg)
+
+    def test_with_qualifier_passes(self):
+        reg = self._register_with_qualified_metric()
+        try:
+            with WriteDraft("Migrated about 1,900 records to the new system.\n") as draft:
+                code, out = self._run(reg, draft)
+            self.assertEqual(code, 0, out)
+        finally:
+            os.unlink(reg)
+
+    def test_second_bare_occurrence_is_still_caught(self):
+        """Same per-occurrence contract as the credential check: the bare
+        rendering is the one an employer reads as exact."""
+        reg = self._register_with_qualified_metric()
+        try:
+            text = ("Summary: migrated about 1,900 records.\n" + "x\n" * 200
+                    + "Skills: migration of 1,900 records.\n")
+            with WriteDraft(text) as draft:
+                code, out = self._run(reg, draft)
+            self.assertNotEqual(code, 0, out)
+        finally:
+            os.unlink(reg)
+
+
+class PositioningConstraints(unittest.TestCase):
+    def test_ai_assisted_framing_exempts_the_build_verb(self):
+        with WriteDraft(
+            "Built a reporting pipeline with Claude Code for the monthly report.\n"
+        ) as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+    def test_the_same_sentence_without_the_framing_is_blocked(self):
+        with WriteDraft("Built a reporting pipeline for the monthly report.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+
+    def test_constraint_patterns_do_not_fire_without_a_declared_constraint(self):
+        """The candidate-agnostic gate.
+
+        A candidate who really is a software engineer has no
+        `programming_claims` entry in their register, and the family must then
+        be completely silent, otherwise this checker would be unusable for
+        anyone in the industry it most often screens.
+        """
+        import yaml
+
+        register = yaml.safe_load(REGISTER.read_text(encoding="utf-8"))
+        register["positioning_constraints"] = [
+            c for c in register["positioning_constraints"]
+            if c.get("id") != "programming_claims"
+        ]
+        with tempfile.NamedTemporaryFile(
+            "w", suffix=".yaml", delete=False, encoding="utf-8"
+        ) as handle:
+            yaml.safe_dump(register, handle, allow_unicode=True)
+            trimmed = handle.name
+        try:
+            with WriteDraft("I am a software engineer and I coded the service.\n") as draft:
+                proc = subprocess.run(
+                    [sys.executable, str(CHECKER), "--register", trimmed, draft],
+                    capture_output=True, text=True, cwd=str(ROOT),
+                )
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        finally:
+            os.unlink(trimmed)
+
+
+class PostingDerivedNumbers(unittest.TestCase):
+    def test_posting_numbers_are_allowed(self):
+        """A salary or requisition ID quoted from the posting is not invented."""
+        draft_text = ("I am applying for requisition 88421, advertised at "
+                      "62,000 CAD per year.\n")
+        posting_text = "Requisition 88421. Salary: 62,000 CAD per year.\n"
+        with WriteDraft(draft_text) as draft, WriteDraft(posting_text) as posting:
+            code, out = run_checker(draft, "--posting", posting)
+            self.assertEqual(code, 0, out)
+            bare, _ = run_checker(draft)
+            self.assertNotEqual(bare, 0,
+                                "without the posting the same numbers must be flagged")
+
+    def test_posting_whitelist_requires_a_whole_number(self):
+        """REGRESSION: a substring match let a real fabrication through.
+
+        The whitelist was `value in posting`, so a posting mentioning 2047 or
+        470 silently cleared an unregistered "47 percent" claim.
+        """
+        draft_text = "I improved throughput by 47 percent in the first year.\n"
+        posting_text = ("Our strategic plan runs to 2047 and the team supports "
+                        "470 clients.\n")
+        with WriteDraft(draft_text) as draft, WriteDraft(posting_text) as posting:
+            code, out = run_checker(draft, "--posting", posting)
+        self.assertNotEqual(
+            code, 0,
+            "47 appears only inside 2047/470, so it must NOT be whitelisted:\n" + out,
+        )
+
+
+class PercentSpellings(unittest.TestCase):
+    def test_percent_spellings_are_equivalent(self):
+        """REGRESSION: registered percentages were flagged when spelled out.
+
+        The register stores "22%"; drafts legitimately write "22 percent", and
+        LaTeX's `22\\%` extracts as "22 %". All three are the same claim.
+        """
+        draft_text = (
+            "Turnaround time fell 22 percent.\n"
+            "Volunteer retention rose 35 %.\n"
+            "The same figure again: 22%.\n"
+        )
+        with WriteDraft(draft_text) as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0,
+                         "registered percentages must pass in any spelling:\n" + out)
+
+
+class ReviewRegressions(unittest.TestCase):
+    """Four defects found in the post-build review. Each is pinned here.
+
+    All four passed silently before: three let a false claim through, one
+    rejected a true one. The gate's own rule is "fix the checker AND pin a
+    fixture", which is what these are.
+    """
+
+    def test_date_range_must_fit_the_entity_named_beside_it(self):
+        """A range next to an employer must fit THAT employer's span.
+
+        Northwind's registered spans are 2020-2022 and 2022-2024. The education
+        span is 2016-2020. Claiming "Northwind Analytical Services, 2016 - 2020"
+        used to pass on the strength of the degree.
+        """
+        with WriteDraft(
+            "Northwind Analytical Services, 2016 - 2020, laboratory operations.\n"
+        ) as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+        self.assertIn("Northwind", out)
+
+    def test_open_ended_range_needs_a_still_open_span(self):
+        """"2020 - present" must not pass on a span that ended in 2022."""
+        with WriteDraft(
+            "Northwind Analytical Services, 2020 - present.\n"
+        ) as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(
+            code, 0,
+            "a closed role must not be renderable as ongoing:\n" + out,
+        )
+
+    def test_genuinely_open_range_still_passes(self):
+        """The fix must not break the true case: PWSA is open-ended."""
+        with WriteDraft(
+            "Prairie Water Stewardship Alliance, 2024 - present.\n"
+        ) as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+    def test_plus_form_matches_a_registered_plain_number(self):
+        """"22+ percent" is the same claim as a registered "22%".
+
+        NUMERAL_RE's unit group swallows the "+", so the plus form produced the
+        candidate "22 + %" and matched nothing.
+        """
+        with WriteDraft("Turnaround time fell 22+ percent.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, "plus-forms must fold onto the plain value:\n" + out)
+
+    def test_a_number_equal_to_a_job_start_year_is_not_a_free_pass(self):
+        """Employment years used to be injected into the metric whitelist.
+
+        Riley started at Northwind in 2020, which silently cleared any claim of
+        "2,020 <units>", a fabricated headcount reading as evidence.
+        """
+        with WriteDraft("The programme reached 2,020 participants.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+
+    def test_credential_qualifier_required_at_every_occurrence(self):
+        """Qualified once, bare later, the bare one is what reads as earned.
+
+        The qualifier is only checked within ~120 characters either side of the
+        mention, so the two renderings are separated here by a realistic amount
+        of CV body text. That distance is the point: on a real two-page CV the
+        summary and the skills list are nowhere near each other, which is
+        exactly why checking only the first occurrence was unsafe.
+        """
+        body = (
+            "Coordinates the volunteer sampling programme across 6 sites, "
+            "covering scheduling, training and equipment logistics. Produces "
+            "the monthly watershed report for the board, combining field "
+            "sample data, laboratory results and trend commentary. Rebuilt "
+            "volunteer onboarding after the first season. Liaises with "
+            "municipal partners on data-sharing agreements and joint "
+            "sampling across the watershed network throughout the season.\n\n"
+        )
+        draft_text = (
+            "Currently completing the Google Data Analytics Professional "
+            "Certificate (in progress).\n\n"
+            + body
+            + "Skills: Excel, LIMS, QGIS, Google Data Analytics Professional "
+              "Certificate.\n"
+        )
+        with WriteDraft(draft_text) as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(
+            code, 0,
+            "a second, unqualified rendering must still be caught:\n" + out,
+        )
+
+
+class LexiconFalsePositives(unittest.TestCase):
+    def test_common_english_words_are_not_technology_claims(self):
+        """REGRESSION: Go, Spring and React are English words as well as tools.
+
+        Matching the lexicon in lowercased text reported "the spring sampling
+        programme" as a claim to the Spring framework.
+        """
+        draft_text = (
+            "The spring sampling programme runs every year.\n"
+            "Volunteers go further than the minimum protocol.\n"
+            "The board tends to react to the trend lines.\n"
+        )
+        with WriteDraft(draft_text) as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, "ordinary English words must not be red lines:\n" + out)
+
+    def test_capitalised_technology_names_are_still_caught(self):
+        """The fix must not blind the check to real keyword stuffing."""
+        with WriteDraft("Production experience with Go and Rust.\n") as draft:
+            code, out = run_checker(draft)
+        self.assertNotEqual(code, 0, out)
+        self.assertIn("Go", out)
+        self.assertIn("Rust", out)
+
+
+class LatexHandling(unittest.TestCase):
+    def test_latex_commands_are_stripped_before_checking(self):
+        """A \\section{...} must not be read as prose, but its text must be."""
+        tex = (r"\section{Experience}" "\n"
+               r"\cventry{2020--2022}{Laboratory Technician}{Northwind "
+               r"Analytical Services}{}{}{Processed 1,400 samples.}" "\n")
+        with WriteDraft(tex, suffix=".tex") as draft:
+            code, out = run_checker(draft)
+        self.assertEqual(code, 0, out)
+
+
+class MissingRegister(unittest.TestCase):
+    def test_absent_register_fails_loudly(self):
+        """No register must never mean 'nothing to check, therefore fine'."""
+        with WriteDraft("Anything at all.\n") as draft:
+            proc = subprocess.run(
+                [sys.executable, str(CHECKER), "--register",
+                 str(ROOT / "evidence" / "does_not_exist.yaml"), draft],
+                capture_output=True, text=True, cwd=str(ROOT),
+            )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("no evidence register", proc.stdout + proc.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main()

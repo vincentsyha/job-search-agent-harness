@@ -12,7 +12,6 @@ The cover letter is not configurable: always 1 page.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
