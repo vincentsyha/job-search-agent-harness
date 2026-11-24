@@ -28,14 +28,14 @@ packages, and the optional Firecrawl Local MCP server. A user missing one finds 
 mid-application, which is the worst possible moment. So check first, fix what can be
 fixed, and walk them through the rest.
 
-1. Run `python harness_setup.py --doctor --quick` and read the table.
+1. Run `uv run python harness_setup.py --doctor --quick` and read the table.
 2. Run `claude mcp list` (or the runtime's equivalent) and note whether `firecrawl` is
    configured.
 3. If everything required is OK and the Firecrawl server is present, say one line
    ("environment checked — everything's in place") and move on to Step 0.
 4. If anything is missing, tell them what and why it matters, then:
    - **Installable by script** (Python packages, portal CLI deps, the Firecrawl Local MCP
-     registration): offer to run `python harness_setup.py --yes` — it installs the
+     registration): offer to run `uv run python harness_setup.py --yes` — it installs the
      recommended set and verifies every install. Doing this once covers all of it.
    - **Firecrawl Local** needs Rust, and setup will not compile things for them. Walk
      them through it, one step at a time, waiting between steps:
@@ -49,7 +49,7 @@ fixed, and walk them through the rest.
      > b. Run `cargo install firecrawl-local`. This compiles from source and takes several
      >    minutes. Chrome or Chromium, if you have one, is used to render JavaScript
      >    pages; without one, static pages still work.
-     > c. Run `firecrawl-local --version`, then `python harness_setup.py` and accept the
+     > c. Run `firecrawl-local --version`, then `uv run python harness_setup.py` and accept the
      >    offer to register it. Verify with `claude mcp list` — `firecrawl` should be
      >    listed. If it isn't, say so; don't report success.
      >
@@ -196,8 +196,8 @@ Write `evidence/register.yaml` following the schema and section order in
 a rumour. Verify before moving on:
 
 ```
-python -c "import yaml,io; d=yaml.safe_load(io.open('evidence/register.yaml',encoding='utf-8').read()); print('%d sections' % len(d))"
-python -m unittest tests_harness.test_fact_check
+uv run python -c "import yaml,io; d=yaml.safe_load(io.open('evidence/register.yaml',encoding='utf-8').read()); print('%d sections' % len(d))"
+uv run python -m unittest tests_harness.test_fact_check
 ```
 
 Then hand the profile-file work to upstream `/setup` (Path A if documents exist, Path B

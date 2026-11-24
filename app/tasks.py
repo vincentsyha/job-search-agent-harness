@@ -77,7 +77,7 @@ def build_prompt(kind: str, args: dict, mode: str = "lite") -> str:
                 "/lite search in `.claude/commands/lite.md`. Read "
                 "`state/lite-last-search.json` and preferences.yaml once. For each row that "
                 "breaks `exclusions`, `hard_skips` or `work_authorization`, run "
-                "`python harness/lite_search.py --gate-fail <#> --rationale '<rule broken>'`. "
+                "`uv run python harness/lite_search.py --gate-fail <#> --rationale '<rule broken>'`. "
                 "Do not fetch postings. Finish with one line: how many were set aside and "
                 "why, and how many look worth a closer look.")
     if kind == "apply":

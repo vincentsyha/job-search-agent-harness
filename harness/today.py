@@ -8,8 +8,8 @@ opening a spreadsheet and reading it themselves.
 
 Read-only. It creates no state and changes nothing, so it is always safe to run.
 
-    python harness/today.py
-    python harness/today.py --json     # for the agent to turn into an action menu
+    uv run python harness/today.py
+    uv run python harness/today.py --json     # for the agent to turn into an action menu
 
 The output ends with numbered actions, because a list of facts still leaves the
 user to work out the command. The whole point is that the answer to "what now?"

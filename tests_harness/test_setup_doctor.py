@@ -1,4 +1,4 @@
-"""Tests for setup.py's probes and doctor table.
+"""Tests for harness_setup.py's probes and doctor table.
 
 Every probe is exercised against a *mocked* PATH and mocked subprocess calls,
 so the suite asserts the same behaviour on any machine, including CI, which
@@ -285,20 +285,39 @@ class PlatformHints(unittest.TestCase):
             self.assertIn("brew", check.fix)
 
 
-class PythonInstaller(unittest.TestCase):
-    """uv when it is on PATH, pip otherwise."""
+class ProjectEnvironment(unittest.TestCase):
+    """uv owns the environment; the check reads the .venv it creates."""
 
-    def test_uv_is_preferred_and_targets_this_python(self):
-        with mock.patch.object(setup.shutil, "which", return_value="/opt/uv"):
-            argv = setup.pip_install_argv(Path("requirements.txt"))
-        self.assertEqual(argv[:3], ["/opt/uv", "pip", "install"])
-        self.assertIn(sys.executable, argv)
-        self.assertIn("requirements.txt", argv)
+    def test_missing_uv_is_required_and_names_an_installer(self):
+        with mock.patch.object(setup, "find_tool", return_value=(None, "")):
+            check = setup.check_uv()
+        self.assertEqual(check.status, setup.MISSING)
+        self.assertTrue(check.required)
+        self.assertTrue({"winget", "brew", "uv/install.sh"} & {w for w in
+                        ("winget", "brew", "uv/install.sh") if w in check.fix})
 
-    def test_pip_when_uv_is_absent(self):
-        with mock.patch.object(setup.shutil, "which", return_value=None):
-            argv = setup.pip_install_argv(Path("requirements.txt"))
-        self.assertEqual(argv[:4], [sys.executable, "-m", "pip", "install"])
+    def test_install_runs_uv_sync_in_the_repo(self):
+        seen: list[list[str]] = []
+
+        def record(args, timeout=180, cwd=None):
+            seen.append(args)
+            return 0, ""
+
+        with mock.patch.object(setup, "find_tool", return_value=("/opt/uv", "")), \
+             mock.patch.object(setup, "run", record), \
+             mock.patch.object(setup, "check_python_deps",
+                               return_value=setup.Check("Python packages", setup.OK)), \
+             mock.patch("builtins.print"):
+            check = setup.install_python_deps()
+        self.assertEqual(["/opt/uv", "sync"], seen[0])
+        self.assertEqual(setup.OK, check.status)
+
+    def test_install_without_uv_says_so_instead_of_running_pip(self):
+        with mock.patch.object(setup, "find_tool", return_value=(None, "")), \
+             mock.patch.object(setup, "run") as run:
+            check = setup.install_python_deps()
+        run.assert_not_called()
+        self.assertEqual(check.status, setup.MISSING)
 
 
 class PortalInstallScope(unittest.TestCase):
@@ -429,33 +448,6 @@ class PortalInstallRetry(unittest.TestCase):
         self.assertEqual(len(calls), 4)  # never more than one retry each
 
 
-class SetupShim(unittest.TestCase):
-    """setup.py is a compatibility shim over harness_setup.py.
-
-    A root setup.py is a contract with pip: `pip install .` executes it with
-    setuptools command arguments, which here used to mean an interactive
-    installer running inside a package build. The shim keeps `python setup.py`
-    working for humans and refuses the packaging invocations.
-    """
-
-    def _run(self, *args: str):
-        return subprocess.run(
-            [sys.executable, str(Path(setup.__file__).parent / "setup.py"),
-             *args],
-            capture_output=True, text=True, encoding="utf-8", errors="replace",
-            timeout=120,
-        )
-
-    def test_pip_style_invocation_is_refused(self):
-        result = self._run("egg_info")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("harness_setup.py", result.stderr)
-
-    def test_human_invocation_still_reaches_the_installer(self):
-        result = self._run("--doctor", "--quick")
-        self.assertIn("Doctor", result.stdout)
-
-
 class SeededPermissions(unittest.TestCase):
     def test_the_ats_text_extraction_is_pre_approved(self):
         """`pdftotext -layout` is a mandatory step of the Verification
@@ -464,7 +456,8 @@ class SeededPermissions(unittest.TestCase):
 
     def test_scripts_every_search_and_package_runs_are_pre_approved(self):
         for script in ("ats_check", "lite_search", "shortlist_row"):
-            self.assertIn(f"Bash(python harness/{script}.py:*)", setup.HARNESS_PERMISSIONS)
+            self.assertIn(f"Bash(uv run python harness/{script}.py:*)",
+                          setup.HARNESS_PERMISSIONS)
 
 
 class CodexNetworkCheck(unittest.TestCase):

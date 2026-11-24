@@ -36,7 +36,7 @@ fi
 if ! "$PY" -c 'import yaml, openpyxl, pypdf' 2>/dev/null; then
     echo "Candor's Python packages are missing. Run this once in Terminal, then try again:"
     echo
-    echo "    $PY -m pip install -r requirements.txt"
+    echo "    uv sync"
     pause
     exit 1
 fi

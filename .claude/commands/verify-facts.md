@@ -36,7 +36,7 @@ pdftotext -layout cv/main_<company>_<role>.pdf cv/main_<company>_<role>.txt
 ## Step 2: Run the checker
 
 ```
-python harness/fact_check.py <cv.tex> <cover_letter.tex> [<extracted.txt>] --posting <job_posting.md>
+uv run python harness/fact_check.py <cv.tex> <cover_letter.tex> [<extracted.txt>] --posting <job_posting.md>
 ```
 
 Pass `--posting` whenever an archived posting exists. Numbers that appear in the
@@ -75,7 +75,7 @@ Append a short pass/fail block to the application summary:
 
 ```
 ### Tier-1 fact check
-python harness/fact_check.py ... -> OK (N files checked, 0 red lines)
+uv run python harness/fact_check.py ... -> OK (N files checked, 0 red lines)
 ```
 
 or, when blocked:
@@ -117,7 +117,7 @@ not sufficient.
 The checker's own fixtures live in `tests_harness/` (never in upstream's `tests/`):
 
 ```
-python -m unittest tests_harness.test_fact_check
+uv run python -m unittest tests_harness.test_fact_check
 ```
 
 `fixture_bad.txt` must be caught with every planted class named; `fixture_clean.txt`

@@ -18,7 +18,7 @@ from pathlib import Path
 # The harness's own scripts and tools, the same list harness_setup.py pre-approves.
 CLAUDE_TOOLS = [
     "Read", "Write", "Edit", "Glob", "Grep", "TodoWrite",
-    "Bash(python harness/*)", "Bash(python3 harness/*)", "Bash(bun run:*)",
+    "Bash(uv run python harness/*)", "Bash(uv sync:*)", "Bash(bun run:*)",
     "Bash(lualatex:*)", "Bash(xelatex:*)", "Bash(pandoc:*)", "Bash(pdftotext:*)",
     "Bash(pdftoppm:*)", "Bash(pdfinfo:*)",
 ]

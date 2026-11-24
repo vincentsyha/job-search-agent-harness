@@ -226,7 +226,7 @@ CSV — `rationale` is free text and routinely holds the commas and quotes that 
 row's columns, after which `/today` stops warning about closing dates:
 
 ```
-python harness/shortlist_row.py --company "<Company>" --role "<Role>" \
+uv run python harness/shortlist_row.py --company "<Company>" --role "<Role>" \
     --score <n> --verdict <verdict> --url "<url>" --location "<location>" \
     --rationale "<one line>" --deadline <YYYY-MM-DD>
 ```
@@ -256,7 +256,7 @@ five-band scale, so the two are mapped here rather than left to look like disagr
 Log the run, including runs that found nothing:
 
 ```
-python harness/run_log.py --portal <source> --query "<query>" --found N --new M \
+uv run python harness/run_log.py --portal <source> --query "<query>" --found N --new M \
     --notes "<anything unverified>"
 ```
 
@@ -269,7 +269,7 @@ one — the job-scraper skill already extracts it. Without this column the deadl
 survives exactly one run's output table and is then lost, which is what used to happen.
 `/today` reads it and warns while there is still time to act.
 
-Then regenerate the workbook: `python harness/tracker_xlsx.py`.
+Then regenerate the workbook: `uv run python harness/tracker_xlsx.py`.
 
 ## Step 7: Present
 

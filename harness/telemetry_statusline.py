@@ -14,7 +14,7 @@ So this script does two jobs:
 
 Register it during setup:
 
-    claude config set statusLine.command "python harness/telemetry_statusline.py"
+    claude config set statusLine.command "uv run python harness/telemetry_statusline.py"
 
     (or in .claude/settings.local.json,
      never .claude/settings.json, which is guard-frozen)

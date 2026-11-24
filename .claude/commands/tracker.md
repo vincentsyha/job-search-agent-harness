@@ -35,13 +35,13 @@ already exists by the time you get here. Rotating again from this command would 
 than useless: it keeps only the five most recent, so five routine `/tracker` runs would
 evict every genuine pre-edit backup — exactly the ones wanted after a bad `/outcome`.
 
-To undo a bad change: `python harness/rotate_backup.py job_search_tracker.csv --list`,
+To undo a bad change: `uv run python harness/rotate_backup.py job_search_tracker.csv --list`,
 then `--restore 1`. The workbook needs no backup; it is regenerated from the CSV.
 
 ## Step 2: Regenerate the workbook
 
 ```
-python harness/tracker_xlsx.py
+uv run python harness/tracker_xlsx.py
 ```
 
 If the CSV does not exist yet the script says so and exits 0 — that is a new user, not an
@@ -62,14 +62,14 @@ workbook regenerated without checking the script's exit status.
 ## Step 3: Run the archiver
 
 ```
-python harness/archive_applications.py
+uv run python harness/archive_applications.py
 ```
 
 One call does two things; never skip it:
 
 - **Moves submitted applications** into `documents/applications/applied/`. The trigger is
   the tracker's `submitted_date` column (ISO `YYYY-MM-DD`; empty means drafted but not
-  sent). Fill it in when the user says they applied — `python harness/tracker_row.py
+  sent). Fill it in when the user says they applied — `uv run python harness/tracker_row.py
   --company "..." --role "..." --set submitted_date=<YYYY-MM-DD>` — and the folder moves
   itself on the next run. Nothing else fills that column, so nothing else triggers the
   move.
@@ -96,7 +96,7 @@ exists, and a count on its own is not actionable.
 ## Self-test
 
 ```
-python -m unittest tests_harness.test_tracker
+uv run python -m unittest tests_harness.test_tracker
 ```
 
 Covers the four tabs, the Open/Closed split, hyperlink generation, regenerate-twice

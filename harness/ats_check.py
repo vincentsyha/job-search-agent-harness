@@ -8,7 +8,7 @@ one judgment a script cannot make: whether a `missing` keyword is something the
 candidate truly has (add it, truthfully) or a genuine gap (leave it - never
 stuff keywords).
 
-    python harness/ats_check.py --cv cv/main_acme_analyst.pdf \\
+    uv run python harness/ats_check.py --cv cv/main_acme_analyst.pdf \\
         --posting documents/applications/Acme_Analyst/job_posting.md \\
         --tex cv/main_acme_analyst.tex --keywords cv/main_acme_analyst.keywords.txt
 
@@ -92,7 +92,7 @@ def pdf_text(path: Path) -> tuple[str, str]:
         from pypdf import PdfReader
     except ImportError:
         raise InputError("pdftotext is not on PATH and pypdf is not installed "
-                         "(pip install -r requirements.txt)") from None
+                         "(uv sync)") from None
     name = "pypdf (pdftotext could not read it)" if exe else "pypdf"
     try:
         return "\n".join(page.extract_text() or ""

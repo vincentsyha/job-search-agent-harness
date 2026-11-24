@@ -37,7 +37,7 @@ Read the evaluation framework:
 Using the framework from `04-job-evaluation.md`, evaluate the job posting against the candidate's profile. If the salary lookup tool is configured, run:
 
 ```bash
-python salary_lookup.py "<Company Name>" --json
+uv run python salary_lookup.py "<Company Name>" --json
 ```
 
 If the posting specifies a city, add `--city "<City>"` to narrow results. Parse the JSON output and include the salary benchmark in the evaluation. If the tool is not configured or returns an error, skip the salary benchmark.
@@ -146,7 +146,7 @@ Also read the most recent existing CV and cover letter files for concrete struct
 - Follow the moderncv/banking format from `05-cv-templates.md`
 - Tailor the profile statement and experience bullets to the specific role
 - Reframe skills and achievements to match job requirements
-- Keep to the configured page target: `preferences.yaml` → `presentation.cv_pages` (or run `python harness/presentation.py`), default **2** when unset. `adaptive` means you choose 1 or 2 from content density for this posting and state the choice and reason in the Step 6 report. Meet a lower target by cutting content, never by shrinking fonts or margins
+- Keep to the configured page target: `preferences.yaml` → `presentation.cv_pages` (or run `uv run python harness/presentation.py`), default **2** when unset. `adaptive` means you choose 1 or 2 from content density for this posting and state the choice and reason in the Step 6 report. Meet a lower target by cutting content, never by shrinking fonts or margins
 - **Grounding Audit:** Before writing to disk, audit all tailored bullet points against the union of three sources: `.claude/skills/job-application-assistant/01-candidate-profile.md` + the master CV (`cv/main_example.tex`) + `CLAUDE.md`'s Candidate Profile section to verify that all dates, roles, and metrics match exactly (zero profile drift or fabrication).
 
 ### Cover Letter (`cover_letters/cover_<company>_<role><COVER_EXT>`)
@@ -285,7 +285,7 @@ After all edits are applied, the two files on disk are the final drafts.
 Use `<CV_COMPILE>` and `<COVER_COMPILE>` resolved in Step 2 (the active template's declared compile command, or the stock defaults below if no custom template is active):
 
 ```bash
-python harness/latex_build.py cv/main_<company>_<role>.tex cover_letters/cover_<company>_<role>.tex --pages <n>
+uv run python harness/latex_build.py cv/main_<company>_<role>.tex cover_letters/cover_<company>_<role>.tex --pages <n>
 ```
 
 For the stock templates this runs lualatex for the CV and xelatex for the letter, prints
@@ -332,7 +332,7 @@ Do not proceed to Step 6 until both PDFs pass inspection.
 An ATS reads the PDF's embedded **text layer**, not the rendered page, so a CV that passed visual inspection can still extract as garbage. One script checks what a parser sees. It applies to the **CV only**; cover letters rarely go through keyword screening.
 
 ```bash
-python harness/ats_check.py --cv cv/main_<company>_<role>.pdf --tex cv/main_<company>_<role><CV_EXT> \
+uv run python harness/ats_check.py --cv cv/main_<company>_<role>.pdf --tex cv/main_<company>_<role><CV_EXT> \
     --keywords cv/main_<company>_<role>.keywords.txt --posting <posting file> --brief
 ```
 

@@ -16,9 +16,9 @@ from that, and both were live:
    and routinely contain commas and quotes. `csv.DictWriter` handles that
    correctly by construction; prose instructions do not.
 
-    python harness/tracker_row.py --company "Acme" --role "Data Analyst" \
+    uv run python harness/tracker_row.py --company "Acme" --role "Data Analyst" \
         --status in_progress --fit 82 --source https://... --location "Winnipeg, MB"
-    python harness/tracker_row.py --company "Acme" --role "Data Analyst" \
+    uv run python harness/tracker_row.py --company "Acme" --role "Data Analyst" \
         --set submitted_date=2026-08-04 --set status=interview_only
 
 Follows the DictWriter pattern already established by harness/run_log.py.

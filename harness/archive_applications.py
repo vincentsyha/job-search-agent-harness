@@ -11,9 +11,9 @@ tracker workflows call it every run and no scheduled task is needed:
    folder needs `--archive`, because doing it unattended once deleted folders
    belonging to live interview processes. Applied folders age out the same way.
 
-    python harness/archive_applications.py            # move submitted; report old
-    python harness/archive_applications.py --dry-run  # report only, change nothing
-    python harness/archive_applications.py --archive  # also zip and remove the old
+    uv run python harness/archive_applications.py            # move submitted; report old
+    uv run python harness/archive_applications.py --dry-run  # report only, change nothing
+    uv run python harness/archive_applications.py --archive  # also zip and remove the old
 
 Creation age comes from the `.created` marker the packaging script stamps; see
 `folder_created_at` for why file mtimes are only a fallback and never override
@@ -313,7 +313,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{verb}: {name}")
         if not do_archive:
             print(f"\n{len(names)} folder(s) are 8+ weeks old. Nothing was deleted.")
-            print("To zip and remove them: python harness/archive_applications.py "
+            print("To zip and remove them: uv run python harness/archive_applications.py "
                   "--archive")
     else:
         print("no application folders due for archiving")

@@ -69,7 +69,7 @@ If you have salary data in an Excel file:
 
 ```bash
 pip install openpyxl
-python3 tools/convert_salary_excel.py path/to/salary-data.xlsx \
+uv run python tools/convert_salary_excel.py path/to/salary-data.xlsx \
   --source "My Salary Data 2025" \
   --baseline 100 \
   --baseline-desc "Index 100 = median salary"
@@ -109,11 +109,11 @@ Start with an empty template and add companies as you research them:
 ## Usage
 
 ```bash
-python3 salary_lookup.py "Novo Nordisk"
-python3 salary_lookup.py "Ørsted" --city "Fredericia"
-python3 salary_lookup.py "COWI" --json
-python3 salary_lookup.py --list-all
-python3 salary_lookup.py --validate      # pre-flight check your salary_data.json
+uv run python salary_lookup.py "Novo Nordisk"
+uv run python salary_lookup.py "Ørsted" --city "Fredericia"
+uv run python salary_lookup.py "COWI" --json
+uv run python salary_lookup.py --list-all
+uv run python salary_lookup.py --validate      # pre-flight check your salary_data.json
 ```
 
 ## Important notes

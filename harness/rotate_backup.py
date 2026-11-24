@@ -6,9 +6,9 @@ keeping the five most recent", and nothing implemented it, so it depended on
 the model remembering to improvise the right shell commands. This is those six
 lines, written once.
 
-    python harness/rotate_backup.py evidence/register.yaml     # back it up
-    python harness/rotate_backup.py job_search_tracker.csv --list
-    python harness/rotate_backup.py job_search_tracker.csv --restore 1
+    uv run python harness/rotate_backup.py evidence/register.yaml     # back it up
+    uv run python harness/rotate_backup.py job_search_tracker.csv --list
+    uv run python harness/rotate_backup.py job_search_tracker.csv --restore 1
 
 `--restore` is the half that matters to a user: backups nobody can find are
 not a safety net. Restoring first backs up the *current* file, so an
@@ -103,7 +103,7 @@ def main(argv=None) -> int:
             when = datetime.fromtimestamp(backup.stat().st_mtime)
             print(f"  {number}. {backup.name}  "
                   f"{when:%Y-%m-%d %H:%M}  {size:,} bytes")
-        print(f"\nRestore one with: python harness/rotate_backup.py {path} "
+        print(f"\nRestore one with: uv run python harness/rotate_backup.py {path} "
               f"--restore 1")
         return 0
 

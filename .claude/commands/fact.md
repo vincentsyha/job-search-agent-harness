@@ -58,7 +58,7 @@ Never delete an entry to resolve a conflict. Correct it, and keep the trail.
 Back up first — one command, which keeps the five most recent copies:
 
 ```
-python harness/rotate_backup.py evidence/register.yaml
+uv run python harness/rotate_backup.py evidence/register.yaml
 ```
 
 Then add the entry. **Every entry carries a `source`.** For a fact the user
@@ -100,13 +100,13 @@ already in the profile, fix it there too rather than leaving two sources disagre
 Both, every time:
 
 ```
-python -m unittest tests_harness.test_fact_check
+uv run python -m unittest tests_harness.test_fact_check
 ```
 
 and a parse check that the register still loads and every entry still carries a source:
 
 ```
-python -c "import yaml,io; d=yaml.safe_load(io.open('evidence/register.yaml',encoding='utf-8').read()); print('register parses, %d top-level sections' % len(d))"
+uv run python -c "import yaml,io; d=yaml.safe_load(io.open('evidence/register.yaml',encoding='utf-8').read()); print('register parses, %d top-level sections' % len(d))"
 ```
 
 If a fixture now fails, **the fixture is usually right and the edit is wrong** — a fact
