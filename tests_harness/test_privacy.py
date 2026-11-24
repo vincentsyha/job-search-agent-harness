@@ -25,7 +25,6 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "harness"))
 
 privacy_sweep = importlib.import_module("privacy_sweep")
 
@@ -132,7 +131,6 @@ class SweepStillCatchesRealData(unittest.TestCase):
 
 class TelemetryMirror(unittest.TestCase):
     def test_extracts_the_documented_fields(self):
-        sys.path.insert(0, str(ROOT / "harness"))
         module = importlib.import_module("telemetry_statusline")
         record = module.extract({
             "context_window": {"used_percentage": 81.5},

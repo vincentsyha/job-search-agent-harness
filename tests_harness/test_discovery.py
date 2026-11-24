@@ -108,7 +108,6 @@ class RunLogging(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             log = Path(tmp) / "run_log.csv"
-            sys.path.insert(0, str(ROOT / "harness"))
             run_log = importlib.import_module("run_log")
             original = run_log.LOG
             run_log.LOG = str(log)

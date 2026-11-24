@@ -9,7 +9,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GUARD_SCRIPT = REPO_ROOT / "tools" / "security_guards.py"
 
-sys.path.insert(0, str(REPO_ROOT / "tools"))
 import security_guards  # noqa: E402  (imported for its allowlist constants)
 
 

@@ -92,7 +92,6 @@ class TexToMdMirror(unittest.TestCase):
         """`\\small{...}` opened the profile paragraph, and every line starting
         with a backslash was dropped: the profile lost its first line in every
         .md/.docx and in the ATS check, and kept a stray closing brace."""
-        sys.path.insert(0, str(ROOT / "harness"))
         import tex_to_md
         out = tex_to_md.convert_cv("\\small{Analyst who owns the data,\n"
                                    "from field collection to the report.}\n")

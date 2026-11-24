@@ -16,13 +16,11 @@ SKILL.md, so its mistakes would be silent. The ones worth pinning:
 from __future__ import annotations
 
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "harness"))
 
 import io
 import json

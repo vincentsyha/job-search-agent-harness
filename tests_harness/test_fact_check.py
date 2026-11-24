@@ -201,7 +201,6 @@ class DateRanges(unittest.TestCase):
         self.assertEqual(code, 0, out)
 
     def test_a_gap_between_titles_is_never_bridged(self):
-        sys.path.insert(0, str(ROOT / "harness"))
         import fact_check
 
         def spans(*titles):

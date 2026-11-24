@@ -17,14 +17,11 @@ from __future__ import annotations
 import contextlib
 import io
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "harness"))
-sys.path.insert(0, str(ROOT))
 
 import os
 from unittest import mock

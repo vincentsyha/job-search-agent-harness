@@ -7,12 +7,10 @@ The log parsing is tested everywhere; the real compile only where TeX is install
 from __future__ import annotations
 
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "harness"))
 import latex_build  # noqa: E402
 
 LOG = """This is LuaHBTeX, Version 1.24.0

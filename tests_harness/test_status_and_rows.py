@@ -19,13 +19,11 @@ from __future__ import annotations
 
 import csv
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "harness"))
 
 import rotate_backup  # noqa: E402
 import status  # noqa: E402

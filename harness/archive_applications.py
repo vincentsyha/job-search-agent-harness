@@ -31,9 +31,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import status  # noqa: E402  (sibling module; path shim above must run first)
-import tracker_row  # noqa: E402  (the one tracker reader; heals short/ragged rows)
+import status
+import tracker_row
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 APPLICATIONS_DIR = REPO_ROOT / "documents" / "applications"

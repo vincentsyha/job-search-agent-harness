@@ -20,13 +20,11 @@ hit, because those are what a future refactor is most likely to undo:
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
 import harness_setup as setup  # noqa: E402  (the path shim above must run first)

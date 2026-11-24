@@ -16,7 +16,6 @@ reading:
 from __future__ import annotations
 
 import shutil
-import sys
 import tempfile
 import unittest
 from datetime import date
@@ -26,7 +25,6 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 COMMANDS = ROOT / ".claude" / "commands"
-sys.path.insert(0, str(ROOT / "harness"))
 
 import today as today_mod  # noqa: E402
 
