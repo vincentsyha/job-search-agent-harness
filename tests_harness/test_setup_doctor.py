@@ -1,19 +1,19 @@
 """Tests for setup.py's probes and doctor table.
 
 Every probe is exercised against a *mocked* PATH and mocked subprocess calls,
-so the suite asserts the same behaviour on any machine — including CI, which
+so the suite asserts the same behaviour on any machine, including CI, which
 has no TeX, no Bun and no agent runtime.
 
 The cases worth reading are the ones that pin down defects the build actually
 hit, because those are what a future refactor is most likely to undo:
 
-* `test_bun_present_but_panicking_is_degraded` — Bun's stock build installs
+* `test_bun_present_but_panicking_is_degraded`, Bun's stock build installs
   fine on a CPU without AVX2 and then panics on every call. A presence-only
   check reports green on a machine where all six portal CLIs are dead.
-* `test_poppler_needs_pdfinfo_too` — Git for Windows ships pdftotext but not
+* `test_poppler_needs_pdfinfo_too`, Git for Windows ships pdftotext but not
   pdfinfo, so checking pdftotext alone reports poppler present when upstream's
   PDF verification cannot run.
-* `test_tool_on_persistent_path_only_says_restart_shell` — a tool installed
+* `test_tool_on_persistent_path_only_says_restart_shell`, a tool installed
   seconds ago is on the registry PATH but not in the running shell; reporting
   MISSING sends the user round in circles re-installing it.
 """
@@ -96,7 +96,7 @@ class PopplerCheck(unittest.TestCase):
         self.assertEqual(check.status, setup.OK)
 
     def test_poppler_needs_pdfinfo_too(self):
-        """Git for Windows ships pdftotext only — that is not poppler."""
+        """Git for Windows ships pdftotext only, that is not poppler."""
         with mock.patch.object(setup.shutil, "which",
                                fake_which({"pdftotext": "/git/pdftotext"})), \
              mock.patch.object(setup, "_persistent_path_dirs", return_value=[]):

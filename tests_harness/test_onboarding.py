@@ -8,13 +8,13 @@ They exist because these files are simultaneously documentation and fixtures: a
 typo in the example is a typo in every register a user builds from it.
 
 **Contract tests** assert that a command document still states the behaviour the
-plan requires of it. They are deliberately narrow — they check that a promise is
+plan requires of it. They are deliberately narrow, they check that a promise is
 present, not that prose is worded a particular way. The promises pinned here are
 the ones whose loss would be invisible in review but would change what the
 system does to a user:
 
 * the CV interview tells the user how to speed it up and how to end it
-  (plan-M 34) — a control the user is never told about does not exist;
+  (plan-M 34), a control the user is never told about does not exist;
 * `/career-review` never writes to the register (plan-M 35);
 * the companies list is explicitly a living list, and researched entries need
   approval (plan-M 36).
@@ -103,7 +103,7 @@ class RegisterExample(unittest.TestCase):
             self.assertTrue(cred.get("qualifier_required"), cred.get("name"))
 
     def test_declared_constraint_ids_resolve_against_the_config(self):
-        """A constraint id with no pattern family is Tier-2 only — allowed, but
+        """A constraint id with no pattern family is Tier-2 only, allowed, but
         an id that is simply misspelled would silently disable a check."""
         config = yaml.safe_load(
             (ROOT / "harness" / "fact_check_config.yaml").read_text(encoding="utf-8")
@@ -136,7 +136,7 @@ class RegisterExample(unittest.TestCase):
         """Wide internal evidence, selective external presentation.
 
         A substantial project must be storable as its component evidence, not
-        only a summary line — otherwise everything but the summary is lost to
+        only a summary line, otherwise everything but the summary is lost to
         every future tailored CV.
         """
         projects = self.reg["projects"]
@@ -208,7 +208,7 @@ class PreferencesExample(unittest.TestCase):
 
 
 class FramingsExample(unittest.TestCase):
-    """The framings library — how a true fact has been phrased, not what is true.
+    """The framings library, how a true fact has been phrased, not what is true.
 
     Kept in its own file precisely so a phrasing can never be mistaken for
     evidence. The tests below pin the two properties that keep that separation
@@ -275,7 +275,7 @@ class FramingsExample(unittest.TestCase):
 
 
 class CvPageTarget(unittest.TestCase):
-    """`harness/presentation.py` — backward-compatible page-target resolution.
+    """`harness/presentation.py`, backward-compatible page-target resolution.
 
     Users onboarded before `presentation:` existed have no such section; they
     must keep getting 2, the old hard rule, without touching their file.
@@ -351,7 +351,7 @@ class CompaniesExample(unittest.TestCase):
 
 
 class InterviewControls(unittest.TestCase):
-    """plan-M 34 — the controls must be built into the command, not the manual."""
+    """plan-M 34, the controls must be built into the command, not the manual."""
 
     def setUp(self):
         self.text = command_text("setup-harness.md")
@@ -382,7 +382,7 @@ class InterviewControls(unittest.TestCase):
 
 
 class CareerReviewBoundary(unittest.TestCase):
-    """plan-M 35 — suggestions only; no path from a web page to the register."""
+    """plan-M 35, suggestions only; no path from a web page to the register."""
 
     def setUp(self):
         self.text = command_text("career-review.md")
@@ -404,7 +404,7 @@ class CareerReviewBoundary(unittest.TestCase):
 
 
 class CompaniesCommand(unittest.TestCase):
-    """plan-M 36 — living list, approval required, unreadable != empty."""
+    """plan-M 36, living list, approval required, unreadable != empty."""
 
     def setUp(self):
         self.text = command_text("companies.md")
@@ -426,7 +426,7 @@ class CompaniesCommand(unittest.TestCase):
 
 
 class DiscoveryPreferences(unittest.TestCase):
-    """Trial role families — the lifecycle that keeps /discover from nagging."""
+    """Trial role families, the lifecycle that keeps /discover from nagging."""
 
     def setUp(self):
         self.prefs = load_example("examples/preferences.example.yaml")

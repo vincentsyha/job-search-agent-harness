@@ -75,7 +75,7 @@ def read_rows(path: Path = TRACKER_CSV) -> tuple[list[dict], list[str]]:
 
 
 def write_rows(rows: list[dict], path: Path = TRACKER_CSV) -> None:
-    """Rewrite the file with the full header. Backup first — always."""
+    """Rewrite the file with the full header. Backup first, always."""
     if path.exists():
         rotate_backup.rotate(path)
     tmp = path.with_name(path.name + ".tmp")

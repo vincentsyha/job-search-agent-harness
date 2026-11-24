@@ -1,16 +1,16 @@
-"""Tests for /today — the daily brief and action menu.
+"""Tests for /today, the daily brief and action menu.
 
 The system had every ingredient for this and assembled none of them: a user
 opening a session had no way to ask "where am I?" short of reading a
 spreadsheet. The tests worth reading:
 
-* `test_logged_followup_resets_the_clock` — the workbook counted days from the
+* `test_logged_followup_resets_the_clock`, the workbook counted days from the
   application date alone, so it kept demanding a follow-up that had already been
   sent. This adopts /outcome's formula (date or latest dated note) as the one
   formula.
-* `test_new_user_is_offered_onboarding_not_an_empty_dashboard` — running any
+* `test_new_user_is_offered_onboarding_not_an_empty_dashboard`, running any
   command before setup used to fail into undefined behaviour.
-* `test_nothing_to_do_produces_no_actions` — a daily brief that always invents a
+* `test_nothing_to_do_produces_no_actions`, a daily brief that always invents a
   task stops being worth reading.
 """
 
@@ -399,7 +399,7 @@ class Wave4Capabilities(unittest.TestCase):
     def test_today_still_declares_what_it_writes(self):
         """The command has two write paths; the honesty note must match.
 
-        It used to say both needed a yes while Step 3 said "quietly" — so the
+        It used to say both needed a yes while Step 3 said "quietly", so the
         model chose, and /today behaved differently run to run. The rule is now
         stated once and is principled: regenerating a view proceeds, changing
         what is recorded asks.

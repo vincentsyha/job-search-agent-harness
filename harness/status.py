@@ -10,8 +10,8 @@ disagreement was silent:
 * `tracker_xlsx.py` recognised only six values; anything else counted as
   neither Open nor Closed, so those rows **vanished from the funnel** with no
   warning.
-* `/html-report` (upstream) has no mapping for `in_progress` — the status
-  `/apply-any` actually writes — and classifies `interview_only` as
+* `/html-report` (upstream) has no mapping for `in_progress`, the status
+  `/apply-any` actually writes, and classifies `interview_only` as
   Rejected/Closed while the workbook counts it Open.
 
 So the two dashboards disagreed with each other and both disagreed with the
@@ -63,14 +63,14 @@ SYNONYMS = {
 }
 
 # Days of silence before a follow-up is due. One number, shared by the
-# workbook and the daily brief — they used to hold two literals and a comment
+# workbook and the daily brief, they used to hold two literals and a comment
 # claiming they were consolidated.
 FOLLOWUP_DAYS = 10
 
 # Live conversations. A folder whose row is open must never be archived.
 OPEN = frozenset({IN_PROGRESS, INTERVIEW_ONLY})
 CLOSED = frozenset({HIRED, OFFER_DECLINED, REJECTED, NO_RESPONSE, WITHDRAWN})
-# The employer replied at all — the denominator question a funnel answers.
+# The employer replied at all, the denominator question a funnel answers.
 RESPONDED = frozenset({HIRED, OFFER_DECLINED, REJECTED, INTERVIEW_ONLY})
 REACHED_INTERVIEW = frozenset({INTERVIEW_ONLY, HIRED, OFFER_DECLINED})
 
@@ -80,7 +80,7 @@ def normalize(value: str | None) -> str:
 
     An unrecognised value is returned lowercased and underscored rather than
     dropped, so a new status shows up in the workbook as itself instead of
-    disappearing. `is_open()` treats unknowns as open — see why there.
+    disappearing. `is_open()` treats unknowns as open, see why there.
     """
     text = (value or "").strip().lower()
     if not text:

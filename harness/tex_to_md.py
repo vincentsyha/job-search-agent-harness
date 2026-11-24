@@ -4,15 +4,15 @@
 Every application ships in four formats: .tex, .pdf, .md and .docx. The .md is
 the pandoc source for the .docx, so it has to say exactly what the .tex says.
 Writing it by hand means two copies of the same prose drifting apart the first
-time a fact is corrected in one and not the other — which is not hypothetical;
+time a fact is corrected in one and not the other, which is not hypothetical;
 it happened in the system this was ported from.
 
     python harness/tex_to_md.py cv/main_acme_analyst.tex          > out.md
     python harness/tex_to_md.py cover_letters/cover_acme.tex      > out.md
     python harness/tex_to_md.py --self-check
 
-Contact details come from `evidence/register.yaml`'s `meta:` block — the same
-register that governs every other fact — so this script contains no personal
+Contact details come from `evidence/register.yaml`'s `meta:` block, the same
+register that governs every other fact, so this script contains no personal
 data and needs no editing to work for a different person.
 
 Scope: the two stock templates this repo generates, nothing else. It is a text
@@ -55,7 +55,7 @@ def inline(text: str) -> str:
     # Macros nest: \textbf{Teams and \mbox{SharePoint}}. The {[^{}]*} patterns
     # cannot span an inner brace group, so a single pass leaves the OUTER macro
     # untouched. Repeat until stable: the inner one resolves first, after which
-    # the outer matches. Bounded so a pattern that never converges cannot spin —
+    # the outer matches. Bounded so a pattern that never converges cannot spin,
     # convert()'s assert catches whatever is left.
     for _ in range(5):
         before = text
@@ -122,7 +122,7 @@ def convert_cover(body: str) -> list[str]:
     for para in re.findall(r"\\lettercontent\{(.*?)\}\s*$", body, flags=re.S | re.M):
         out.append(inline(re.sub(r"\s+", " ", para)))
         out.append("")
-    # The bullet block lives OUTSIDE \lettercontent (a template pitfall — see
+    # The bullet block lives OUTSIDE \lettercontent (a template pitfall, see
     # docs/latex-gotchas.md), so pull it separately.
     items = re.findall(r"\\item\s+(.*?)(?=\\item|\\end\{itemize\})", body, flags=re.S)
     if items:

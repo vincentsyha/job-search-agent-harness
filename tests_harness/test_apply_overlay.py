@@ -1,7 +1,7 @@
 """Tests for the P4 apply overlay: intake ladder, apply wrapper, .md mirror.
 
 `harness/tex_to_md.py` is exercised for real. The two command/skill documents
-are checked for the promises whose loss would change behaviour silently — the
+are checked for the promises whose loss would change behaviour silently, the
 ones where a missing sentence produces a package that looks fine and is not:
 
 * the humanizer pass is followed by a re-ground (a rewrite that strengthens a
@@ -169,7 +169,7 @@ class IntakeLadder(unittest.TestCase):
 
     def test_the_posting_record_must_hold_the_posting_not_a_pointer(self):
         """Observed in a sibling system: `job_posting.md` held a header and
-        "full posting text archived in posting_source/" — and nothing else. The
+        "full posting text archived in posting_source/", and nothing else. The
         posting was gone by the time anyone needed it, and every downstream
         reader opens that one file.
         """
@@ -195,7 +195,7 @@ class IntakeLadder(unittest.TestCase):
         Measured on the fixture below: a LaTeX-produced posting extracts 11 of
         12 fields intact and drops the en dash out of the salary range, so
         `NOK 780,000-860,000` becomes one unreadable token. The Verification
-        Checklist already runs this check — but on the outgoing CV only, never
+        Checklist already runs this check, but on the outgoing CV only, never
         on the incoming posting.
         """
         self.assertIn("(cid:", self.text)
@@ -213,7 +213,7 @@ class PostingIntakeFixture(unittest.TestCase):
 
     Rendering it to PDF needs pandoc and a TeX engine, which CI does not have,
     so the artifacts are generated on demand rather than shipped. What is
-    pinned here is that the source and its ground truth stay in step — a
+    pinned here is that the source and its ground truth stay in step, a
     fixture whose expected values have drifted from its content proves nothing.
     """
 

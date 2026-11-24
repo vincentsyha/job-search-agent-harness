@@ -8,9 +8,9 @@ the ones the harness added.
 Deliberately kept separate from `harness/privacy_sweep.py`. They fail
 differently and run at different times:
 
-  * **this file** is a *structural* check — are the ignore rules present, is
+  * **this file** is a *structural* check, are the ignore rules present, is
     anything personal actually tracked? Fast, runs on every commit in CI.
-  * **privacy_sweep** is a *content* scan — does any shipped file contain
+  * **privacy_sweep** is a *content* scan, does any shipped file contain
     something that looks like personal data? Slower, runs at the release gate
     and in the fresh-install test.
 
@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parent.parent
 errors: list[str] = []
 
 # Ignore rules the harness added. Losing one of these silently re-exposes a
-# whole family — the register, the preference answers, the continuity handoff.
+# whole family, the register, the preference answers, the continuity handoff.
 REQUIRED_IGNORE_RULES = [
     "evidence/register.yaml",
     "evidence/backups/",
@@ -153,7 +153,7 @@ def check_nothing_personal_is_tracked() -> None:
                 f"{path}"
             )
     for prefix in FORBIDDEN_TRACKED_PREFIXES:
-        # `.gitkeep` files are how upstream ships the empty folder structure —
+        # `.gitkeep` files are how upstream ships the empty folder structure,
         # they are zero-byte by definition and hold nothing. Upstream's own
         # guard allowlists the matching `!documents/**/.gitkeep` negation, so
         # flagging them here would fail the build on correct upstream content.

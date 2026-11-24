@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Assemble a complete application package. One command, twelve operations.
 
-Everything here used to be prose in `.claude/commands/apply-any.md` — folder
+Everything here used to be prose in `.claude/commands/apply-any.md`, folder
 naming, friendly filenames, truncation, three format conversions per document,
-a PDF merge, a Word page break, the tracker row — and the model re-derived all
+a PDF merge, a Word page break, the tracker row, and the model re-derived all
 of it on every run. That is how the combined document came to ship as a PDF
 with no .md or .docx: the instructions listed all three, and nobody noticed the
 two that were never written, because a contract test that reads a document
@@ -95,7 +95,7 @@ def _clean(text: str) -> str:
 
 
 def folder_name(company: str, role: str) -> str:
-    """`<Company>_<Role>` — the documented application-folder convention.
+    """`<Company>_<Role>`, the documented application-folder convention.
 
     Each part is cut at its last whole word within MAX_PART, so no folder ends in
     a word fragment that `match_folder` then fails to find in the tracker's role.
@@ -291,7 +291,7 @@ def posting_archive_gaps(folder: Path) -> list[str]:
     entire original build nothing checked that it had: the demo package
     shipped with an empty posting_source/ and no job_posting.md at all. A
     posting archived at apply time is the only record of what was applied to
-    once the posting goes offline — which is what interview prep reads weeks
+    once the posting goes offline, which is what interview prep reads weeks
     later, and by then it cannot be re-fetched.
     """
     gaps: list[str] = []

@@ -3,9 +3,9 @@
 The guards are deliberately two separate tools with different failure modes,
 and these tests pin that split:
 
-* `tools/harness_guards.py` is structural — ignore rules present, nothing
+* `tools/harness_guards.py` is structural, ignore rules present, nothing
   personal tracked. It cannot see a phone number pasted into a README.
-* `harness/privacy_sweep.py` is content — it scans what files actually say. It
+* `harness/privacy_sweep.py` is content, it scans what files actually say. It
   cannot see a deleted gitignore rule.
 
 Merging them would lose one of those, which is why `test_the_two_guards_check_
@@ -59,7 +59,7 @@ class SweepStillCatchesRealData(unittest.TestCase):
 
     def scan_text(self, text: str) -> list:
         """Re-implements the scan loop, but must call `is_allowed` the way
-        production does — with the label.
+        production does, with the label.
 
         It used to omit the third argument, so `label` defaulted to "" and the
         CONTACT_LABELS branch (the whole point of the split: a placeholder
@@ -79,7 +79,7 @@ class SweepStillCatchesRealData(unittest.TestCase):
         """REGRESSION: one `your-` anywhere on a line excused every match on it.
 
         The line-level placeholder check ran above the contact-label split, so
-        a template-looking line carrying one real address shipped clean — the
+        a template-looking line carrying one real address shipped clean, the
         exact hole the split was written to close.
         """
         hits = self.scan_text(
@@ -135,7 +135,7 @@ class SweepStillCatchesRealData(unittest.TestCase):
         self.assertIn("github url", advisory)
 
     def test_strict_mode_promotes_advisory_to_blocking(self):
-        """The category is kept, not deleted — the owner can still demand it."""
+        """The category is kept, not deleted, the owner can still demand it."""
         blocking, advisory = privacy_sweep.scan(strict=True)
         self.assertEqual([], advisory)
 
@@ -291,7 +291,7 @@ class UserGuide(unittest.TestCase):
     def test_documents_all_five_scopes_and_three_modes(self):
         # `--scope board <name>` is the real fifth scope. The guide used to show
         # a bare `--board` flag, which `/scrape` has never implemented, and this
-        # test pinned it — so the sweep that removed the phantom flag from the
+        # test pinned it, so the sweep that removed the phantom flag from the
         # command file left the copy users actually type from untouched.
         for scope in ("--scope companies", "--scope boards", "--scope all",
                       "--scope company", "--scope board"):

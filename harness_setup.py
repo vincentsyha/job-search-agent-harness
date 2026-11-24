@@ -36,7 +36,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 
 # Statuses.
-DEGRADED = "DEGRADED"  # present but broken — the dangerous one
+DEGRADED = "DEGRADED"  # present but broken, the dangerous one
 MISSING = "MISSING"
 UNVERIFIED = "UNVERIFIED"
 STALE_PATH = "RESTART SHELL"
@@ -153,7 +153,7 @@ def confirm(question: str, default: bool = True) -> bool:
         answer = input(f"{question} {suffix} ").strip().lower()
     except EOFError:
         # Piped stdin (CI, a wrapper script). Take the default rather than
-        # crashing, and say so — silence here would look like a real answer.
+        # crashing, and say so, silence here would look like a real answer.
         print(f"{question} {suffix} (no input available, using default)")
         return default
     if not answer:
@@ -298,7 +298,7 @@ def check_bun() -> Check:
     """Bun, executed rather than merely located.
 
     The stock Bun build requires AVX2. On a CPU without it, `bun` installs
-    perfectly and then panics with an illegal instruction on every call — so a
+    perfectly and then panics with an illegal instruction on every call, so a
     presence-only check reports green on a machine where all six portal CLIs
     are dead. Verified on the build machine: exit 3, `Features: no_avx2`.
     """
@@ -372,7 +372,7 @@ def platform_hint(windows: str, macos: str, linux: str) -> str:
 
 
 def check_tex(quick: bool = False) -> list[Check]:
-    """Verify both engines exist and — unless --quick — actually compile.
+    """Verify both engines exist and, unless --quick, actually compile.
 
     "lualatex --version succeeds" is not evidence that a CV will build: the
     stock templates need fontspec, moderncv and the bundled Raleway fonts, and
@@ -638,7 +638,7 @@ def offer_statusline() -> Check:
     """Register the telemetry statusline (Claude only).
 
     This is the only channel through which the running agent can see how full
-    its context window is — hooks receive no usage fields. Without it the
+    its context window is, hooks receive no usage fields. Without it the
     continuity engine still works, but on milestone cadence alone.
 
     Writes `.claude/settings.local.json`. Never `.claude/settings.json`, which

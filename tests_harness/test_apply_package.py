@@ -1,4 +1,4 @@
-"""Tests for harness/apply_package.py — the deterministic package builder.
+"""Tests for harness/apply_package.py, the deterministic package builder.
 
 This script replaces roughly twelve filesystem operations that were previously
 described in prose and re-derived by the model on every run. The test that
@@ -243,7 +243,7 @@ class PostingArchiveGate(unittest.TestCase):
     REGRESSION: for the entire original build nothing checked this. The demo
     package shipped with an empty posting_source/ and no job_posting.md, and a
     contract test that reads a document cannot notice a file that does not
-    exist — the same failure mode the combined-document bug had.
+    exist, the same failure mode the combined-document bug had.
     """
 
     def setUp(self):
@@ -255,7 +255,7 @@ class PostingArchiveGate(unittest.TestCase):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     # A realistic posting, because the fixture is also the example. The old
-    # one was "# Data Analyst\nAcme." — 21 characters asserted to be a complete
+    # one was "# Data Analyst\nAcme.", 21 characters asserted to be a complete
     # archive, which pinned the pointer-stub shape as acceptable.
     POSTING = (
         "**Source:** https://careers.example.com/acme/data-analyst-88\n"
@@ -288,7 +288,7 @@ class PostingArchiveGate(unittest.TestCase):
     def test_a_header_plus_pointer_is_a_gap_not_a_pass(self):
         """The reported symptom from a sibling project.
 
-        The file exists, is not empty, and names the posting — and contains no
+        The file exists, is not empty, and names the posting, and contains no
         posting. Every later reader opens this one file: the fit evaluation,
         the reviewer, /verify-facts --posting, /interview weeks on. A pointer
         hands all of them nothing, and by then the live posting is often gone.
@@ -321,8 +321,8 @@ class PostingArchiveGate(unittest.TestCase):
 class PdfBesideTheSource(unittest.TestCase):
     """REGRESSION: every package shipped without a PDF.
 
-    `/apply` compiles in place — lualatex in `cv/`, xelatex in
-    `cover_letters/` — so the two PDFs are never under one `--build`
+    `/apply` compiles in place, lualatex in `cv/`, xelatex in
+    `cover_letters/`, so the two PDFs are never under one `--build`
     directory, and the documented `--build build` pointed at a directory
     nothing writes. Packaging printed a soft "no compiled PDF" note and
     produced .tex/.md/.docx with no PDF and no combined PDF.
@@ -350,7 +350,7 @@ class PdfBesideTheSource(unittest.TestCase):
         )
         pdfs = [f for f in written if f.endswith(".pdf")]
         # Both documents. The combined PDF needs readable input, which the
-        # byte-stub here is not — merging it is covered by PackageAssembly.
+        # byte-stub here is not, merging it is covered by PackageAssembly.
         self.assertEqual(len(pdfs), 2, sorted(written))
 
     def test_an_unreadable_pdf_skips_the_merge_instead_of_crashing(self):
@@ -369,7 +369,7 @@ class TrainingGate(unittest.TestCase):
 
     `/apply-any` writes TRAINING-REQUIRED.md when a draft uses a skill the
     evaluation classified as learnable in hours. The package must stay at
-    exit 2 until the user has actually done the exercise — otherwise the
+    exit 2 until the user has actually done the exercise, otherwise the
     training flow is decoration and the draft ships on an unearned claim.
     """
 

@@ -12,7 +12,7 @@ Exit code = number of red lines (0 = OK).
 Two boundaries worth being explicit about:
 
 * **This checker judges facts, never phrasing.** Whether a reframing is
-  persuasive, whether "led" is fair where the evidence says "supported" — that
+  persuasive, whether "led" is fair where the evidence says "supported", that
   is the reviewer pass (Tier 2). Paraphrase stays completely free here.
 * **Never weaken a check to make a draft pass.** The three legal resolutions
   are: fix the draft · confirm the fact and record it with `/fact` · fix the
@@ -40,7 +40,7 @@ CONFIG = os.path.join(HARNESS_DIR, "fact_check_config.yaml")
 # Units that make a bare number a factual claim rather than formatting noise.
 #
 # This is a whitelist on purpose: without it, page numbers, font sizes and
-# postcodes would all read as claims. The cost is a stated ceiling — a numeral
+# postcodes would all read as claims. The cost is a stated ceiling, a numeral
 # whose unit is not listed here is not checked at all (see
 # test_numeral_with_an_unlisted_unit_is_a_known_ceiling). Add units when a real
 # draft carries a claim past the gate; that strengthens the check.
@@ -144,7 +144,7 @@ def canon_plus(value) -> str:
     """Normalized numeral with any '+' and its spacing removed.
 
     NUMERAL_RE's unit group is `\\+?\\s*years?`, so a draft's "5+ years" yields
-    the unit "+ years" and the candidate "5 + years" — which never matched a
+    the unit "+ years" and the candidate "5 + years", which never matched a
     registered "5 years". Folding both sides onto the plus-free form fixes it
     without loosening what counts as a claim.
     """
@@ -282,7 +282,7 @@ def metric_qualifier_rules(reg: dict) -> list[tuple[list[str], str]]:
     """Metrics that may never render without their qualifier.
 
     `/fact` has always instructed recording `qualifier_required: about` when
-    the user said "about", "roughly", "nearly" — and promised the qualifier
+    the user said "about", "roughly", "nearly", and promised the qualifier
     "becomes mandatory in every rendering". Nothing enforced that promise: an
     approximate metric could render as exact and pass clean. Mirrors
     credential_rules(), which is the same contract for credentials.
@@ -385,7 +385,7 @@ def check(paths, posting_text: str = "", register_path: str = REGISTER,
                 continue
             red.append((where, claim, "no registered metric has this value"))
 
-        # 2. Date ranges must sit inside a registered span — and where the
+        # 2. Date ranges must sit inside a registered span, and where the
         #    sentence names an entity, inside THAT entity's span.
         #
         #    Matching against any span let "Acme Corp, 2015 - 2016" pass on the
@@ -443,7 +443,7 @@ def check(paths, posting_text: str = "", register_path: str = REGISTER,
                     "technology is not in the register - it may not be claimed as used",
                 ))
 
-        # 4. In-progress credentials may never render without their qualifier —
+        # 4. In-progress credentials may never render without their qualifier,
         #    at EVERY occurrence, not just the first.
         #
         #    The old check used low.find(), so a CV reading "PMP (in progress)"
@@ -471,7 +471,7 @@ def check(paths, posting_text: str = "", register_path: str = REGISTER,
                     flagged = True
                     break
 
-        # 4b. Approximate metrics may never render without their qualifier —
+        # 4b. Approximate metrics may never render without their qualifier,
         #     same per-occurrence contract as check 4. A "1,400" recorded with
         #     `qualifier_required: about` must carry "about" (or the recorded
         #     word) at every rendering, or it reads as an exact figure.
@@ -565,7 +565,7 @@ def main(argv=None) -> int:
 
     # Wording matters here. "FABRICATION-RISK", aimed at a job seeker reading
     # about their own life, accuses them of lying when the usual cause is that
-    # a true fact is simply not recorded yet — and it buried that resolution
+    # a true fact is simply not recorded yet, and it buried that resolution
     # third. The gate is exactly as strict; it just leads with the likely cause.
     print("%d unsupported claim(s). This package is on hold until each one is "
           "resolved." % len(red))

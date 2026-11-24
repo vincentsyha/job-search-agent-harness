@@ -2,7 +2,7 @@
 """Keep the last N copies of a file, and let a person get one back.
 
 `/fact` and `/tracker` both told the agent to "copy the file into backups/,
-keeping the five most recent" — and nothing implemented it, so it depended on
+keeping the five most recent", and nothing implemented it, so it depended on
 the model remembering to improvise the right shell commands. This is those six
 lines, written once.
 
