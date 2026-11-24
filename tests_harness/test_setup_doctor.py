@@ -159,96 +159,6 @@ class TexCheck(unittest.TestCase):
         self.assertIn("moderncv.cls", check.fix)
 
 
-class PluginVerification(unittest.TestCase):
-    """An install is not done until the runtime lists it."""
-
-    def setUp(self):
-        self.runtime = setup.Runtime(name="claude", exe="/fake/claude",
-                                     install_verb="install")
-
-    def test_install_verified_by_relisting(self):
-        with mock.patch.object(setup, "run", return_value=(0, "ok")), \
-             mock.patch.object(setup, "installed_plugins",
-                               return_value="ponytail@ponytail enabled"):
-            check = setup.install_plugin(self.runtime, "DietrichGebert/ponytail",
-                                         "ponytail")
-        self.assertEqual(check.status, setup.OK)
-
-    def test_silent_install_failure_is_unverified_not_ok(self):
-        """Exit 0 with the plugin absent from `plugin list` is not success."""
-        with mock.patch.object(setup, "run", return_value=(0, "ok")), \
-             mock.patch.object(setup, "installed_plugins", return_value="(none)"):
-            check = setup.install_plugin(self.runtime, "DietrichGebert/ponytail",
-                                         "ponytail")
-        self.assertEqual(check.status, setup.UNVERIFIED)
-
-    def test_marketplace_failure_reports_missing(self):
-        with mock.patch.object(setup, "run", return_value=(1, "network error")):
-            check = setup.install_plugin(self.runtime, "JuliusBrussee/caveman",
-                                         "caveman")
-        self.assertEqual(check.status, setup.MISSING)
-
-
-class CavemanOffer(unittest.TestCase):
-    """plan-M test 39: explained, lite recommended, decline leaves it out."""
-
-    def setUp(self):
-        self.runtime = setup.Runtime(name="claude", exe="/fake/claude",
-                                     install_verb="install")
-
-    def test_explanation_states_what_it_does_and_recommends_lite(self):
-        text = setup.CAVEMAN_EXPLANATION.lower()
-        self.assertIn("optional", text)
-        self.assertIn("lite", text)
-        # It must promise not to touch user-facing application prose.
-        self.assertIn("cover letter", text)
-
-    def test_declining_leaves_caveman_uninstalled(self):
-        with mock.patch.object(setup, "installed_plugins", return_value=""), \
-             mock.patch.object(setup, "confirm", return_value=False), \
-             mock.patch.object(setup, "install_plugin") as installer, \
-             mock.patch("builtins.print"):
-            checks = setup.offer_plugins(self.runtime)
-        installer.assert_not_called()
-        caveman = [c for c in checks if "caveman" in c.name]
-        self.assertEqual(caveman[0].status, setup.OPTIONAL)
-
-    def test_accepting_installs_and_verifies(self):
-        installed = setup.Check("caveman (claude)", setup.OK, "installed and listed")
-        with mock.patch.object(setup, "installed_plugins", return_value=""), \
-             mock.patch.object(setup, "confirm", return_value=True), \
-             mock.patch.object(setup, "install_plugin",
-                               return_value=installed) as installer, \
-             mock.patch("builtins.print"):
-            setup.offer_plugins(self.runtime)
-        repos = [call.args[1] for call in installer.call_args_list]
-        self.assertIn("JuliusBrussee/caveman", repos)
-
-    def test_lite_mode_defaults_to_the_reply_shortening_plugins(self):
-        defaults = {}
-
-        def remember(question, default=True):
-            defaults[question.split()[1]] = default
-            return False
-
-        with mock.patch.object(setup, "installed_plugins", return_value=""), \
-             mock.patch.object(setup, "confirm", side_effect=remember), \
-             mock.patch("builtins.print"):
-            setup.offer_plugins(self.runtime, "lite")
-            lite = dict(defaults)
-            setup.offer_plugins(self.runtime, "standard")
-        self.assertTrue(lite["Caveman"] and lite["i-have-adhd"])
-        self.assertFalse(defaults["Caveman"] or defaults["i-have-adhd"])
-
-    def test_codex_gets_the_ref_the_adhd_repo_asks_for(self):
-        codex = setup.Runtime(name="codex", exe="/fake/codex", install_verb="add")
-        with mock.patch.object(setup, "run", return_value=(0, "")) as run, \
-             mock.patch.object(setup, "installed_plugins", return_value="i-have-adhd"):
-            setup.install_plugin(codex, "ayghri/i-have-adhd", "i-have-adhd", codex_ref="main")
-        self.assertEqual(["/fake/codex", "plugin", "marketplace", "add",
-                          "ayghri/i-have-adhd", "--ref", "main"], run.call_args_list[0].args[0])
-
-
 class PlanAndMode(unittest.TestCase):
     """Setup recommends lite below ChatGPT Pro / Claude Max and records the choice."""
 
@@ -286,48 +196,66 @@ class PlanAndMode(unittest.TestCase):
                           (Path(tmp) / "preferences.yaml").read_text(encoding="utf-8"))
 
 
-class FirecrawlSecrets(unittest.TestCase):
-    """The API key is referenced by name, never copied into a config."""
+class FirecrawlLocal(unittest.TestCase):
+    """One local binary replaces Playwright and the Firecrawl cloud server."""
 
     def setUp(self):
-        self.runtime = setup.Runtime(name="claude", exe="/fake/claude",
-                                     install_verb="install")
+        self.runtime = setup.Runtime(name="claude", exe="/fake/claude")
 
-    def test_keyless_when_no_env_var(self):
+    def test_missing_binary_is_optional_and_runs_nothing(self):
+        with mock.patch.object(setup, "find_tool", return_value=(None, "")), \
+             mock.patch.object(setup, "mcp_listing", return_value=""), \
+             mock.patch.object(setup, "run") as run:
+            checks = setup.offer_mcp(self.runtime)
+        run.assert_not_called()
+        self.assertEqual(checks[0].status, setup.OPTIONAL)
+
+    def test_registers_the_local_binary_and_refuses_private_addresses(self):
         captured: list[list[str]] = []
 
         def record(args, timeout=180, cwd=None):
             captured.append(args)
-            return 0, "firecrawl"
+            return 0, ""
 
-        with mock.patch.object(setup, "mcp_listing", side_effect=["", "firecrawl"]), \
-             mock.patch.object(setup, "confirm", side_effect=[False, True]), \
+        with mock.patch.object(setup, "find_tool", return_value=("/opt/fc-local", "")), \
+             mock.patch.object(setup, "confirm", return_value=True), \
+             mock.patch.object(setup, "mcp_listing", side_effect=["", "firecrawl"]), \
              mock.patch.object(setup, "run", record), \
-             mock.patch.dict(setup.os.environ, {}, clear=True), \
              mock.patch("builtins.print"):
-            setup.offer_mcp(self.runtime)
-        flat = " ".join(" ".join(a) for a in captured)
-        self.assertIn(setup.FIRECRAWL_URL, flat)
-        self.assertNotIn("Authorization", flat)
+            checks = setup.offer_mcp(self.runtime)
+        self.assertEqual(["/fake/claude", "mcp", "add", "firecrawl", "--",
+                          "/opt/fc-local", "mcp", "--public-only"], captured[0])
+        self.assertEqual(checks[0].status, setup.OK)
 
-    def test_key_is_passed_as_a_variable_reference_not_a_value(self):
-        captured: list[list[str]] = []
-
-        def record(args, timeout=180, cwd=None):
-            captured.append(args)
-            return 0, "firecrawl"
-
-        secret = "fc-secret-value-that-must-never-be-written"
-        with mock.patch.object(setup, "mcp_listing", side_effect=["", "firecrawl"]), \
-             mock.patch.object(setup, "confirm", side_effect=[False, True]), \
-             mock.patch.object(setup, "run", record), \
-             mock.patch.dict(setup.os.environ,
-                             {setup.FIRECRAWL_KEY_VAR: secret}, clear=True), \
+    def test_add_without_a_listing_is_unverified_not_ok(self):
+        with mock.patch.object(setup, "find_tool", return_value=("/opt/fc-local", "")), \
+             mock.patch.object(setup, "confirm", return_value=True), \
+             mock.patch.object(setup, "mcp_listing", side_effect=["", ""]), \
+             mock.patch.object(setup, "run", return_value=(0, "")), \
              mock.patch("builtins.print"):
-            setup.offer_mcp(self.runtime)
-        flat = " ".join(" ".join(a) for a in captured)
-        self.assertNotIn(secret, flat)
-        self.assertIn(setup.FIRECRAWL_KEY_VAR, flat)
+            checks = setup.offer_mcp(self.runtime)
+        self.assertEqual(checks[0].status, setup.UNVERIFIED)
+
+    def test_already_configured_is_not_re_added(self):
+        with mock.patch.object(setup, "mcp_listing", return_value="firecrawl"), \
+             mock.patch.object(setup, "run") as run, \
+             mock.patch("builtins.print"):
+            checks = setup.offer_mcp(self.runtime)
+        run.assert_not_called()
+        self.assertEqual(checks[0].status, setup.OK)
+
+    def test_the_doctor_row_names_the_install_command(self):
+        with mock.patch.object(setup, "find_tool", return_value=(None, "")):
+            check = setup.check_firecrawl_local()
+        self.assertEqual(check.status, setup.OPTIONAL)
+        self.assertIn("cargo install", check.fix)
+
+    def test_installed_binary_reports_its_version(self):
+        with mock.patch.object(setup, "find_tool", return_value=("/opt/fc-local", "")), \
+             mock.patch.object(setup, "run", return_value=(0, "firecrawl-local 0.4.1\n")):
+            check = setup.check_firecrawl_local()
+        self.assertEqual(check.status, setup.OK)
+        self.assertIn("0.4.1", check.detail)
 
 
 class DoctorTable(unittest.TestCase):
@@ -337,7 +265,7 @@ class DoctorTable(unittest.TestCase):
             setup.Check("Bun", setup.DEGRADED, "crashes"),
             setup.Check("lualatex", setup.MISSING, "not on PATH"),
             setup.Check("pandoc", setup.MISSING, "not on PATH", required=False),
-            setup.Check("caveman", setup.OPTIONAL, "declined", required=False),
+            setup.Check("firecrawl MCP", setup.OPTIONAL, "declined", required=False),
         ]
         with mock.patch("builtins.print"):
             failures = setup.print_doctor(checks)
@@ -376,7 +304,7 @@ class ConfirmBehaviour(unittest.TestCase):
     def test_piped_stdin_falls_back_to_default(self):
         with mock.patch("builtins.input", side_effect=EOFError), \
              mock.patch("builtins.print"):
-            self.assertFalse(setup.confirm("Install Caveman?", default=False))
+            self.assertFalse(setup.confirm("Install the optional server?", default=False))
 
 
 class PortalInstallRetry(unittest.TestCase):

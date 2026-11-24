@@ -64,31 +64,11 @@ class Check:
 
 @dataclass
 class Runtime:
-    """An agent CLI we can install plugins into."""
+    """An agent CLI we can configure."""
 
     name: str  # "claude" | "codex"
     exe: str
-    # Codex installs plugins with `plugin add`, Claude with `plugin install`.
-    install_verb: str
     checks: list[Check] = field(default_factory=list)
-
-
-CAVEMAN_EXPLANATION = """\
-  Caveman is OPTIONAL. It compresses the agent's *internal* chatter — status
-  updates, search summaries, notes between sub-agents — into a terser style,
-  which cuts output tokens on chatty tasks and makes long runs easier to skim.
-
-  What it never touches: your CVs, cover letters, recruiter messages, or any
-  other text that reaches a human. Those are hard-fenced off in this harness,
-  so installing Caveman cannot affect the quality of an application.
-
-  Honest note on savings: the token reduction is real on chatty work, but
-  Ponytail's own benchmark measured Caveman as roughly cost-neutral on build
-  tasks. Treat it as readability control, with savings as a bonus.
-
-  Recommended for this harness: LITE mode (say `/caveman lite` in a session).
-  Lite keeps the compression on internal chatter without the heavier stylistic
-  rewriting. You can remove the plugin at any time; nothing depends on it."""
 
 
 # --------------------------------------------------------------------------
@@ -261,25 +241,20 @@ def seed_preferences(plan: str, mode: str, root: Path = ROOT) -> str:
     return f"preferences.yaml started with mode {'lite' if mode == 'lite' else 'focused'}"
 
 
-def offer_express(mode: str = "lite") -> bool:
+def offer_express() -> bool:
     """Ask once whether to take every recommended answer.
 
-    The per-item prompts are 7 on one runtime and 13 on two, which is a lot of
-    decisions to ask someone before they have seen the thing work.
+    A custom run asks about each optional item in turn, which is a lot of
+    decisions to put in front of someone before they have seen the thing work.
     """
     if DOCTOR_ONLY or AUTO_YES:
         return AUTO_YES
     print("\nTwo ways to do this:")
     print("  express - take the recommended answer to everything (1 question)")
-    print("  custom  - decide each item yourself (9 questions, or 14 if you use")
-    print("            both Claude Code and Codex)")
-    print("\nExpress installs: the Python packages, the job-board tools, Ponytail,")
-    print("the Playwright and Firecrawl browser tools, and the statusline.")
-    if mode == "lite":
-        print("For lite mode it also installs Caveman and i-have-adhd, which keep the")
-        print("agent's replies short.")
-    else:
-        print("It declines Caveman and i-have-adhd for you; both are optional.")
+    print("  custom  - decide each item yourself, optional ones included")
+    print("\nExpress installs the Python packages and the job-board tools, registers")
+    print("the Firecrawl Local MCP server if the binary is on your PATH, and adds")
+    print("the statusline.")
     return confirm("\nUse express setup?", default=True)
 
 
@@ -480,10 +455,10 @@ def check_python_deps() -> Check:
 
 def detect_runtimes() -> list[Runtime]:
     found: list[Runtime] = []
-    for name, verb in (("claude", "install"), ("codex", "add")):
+    for name in ("claude", "codex"):
         path, _ = find_tool(name)
         if path:
-            found.append(Runtime(name=name, exe=path, install_verb=verb))
+            found.append(Runtime(name=name, exe=path))
     return found
 
 
@@ -538,94 +513,10 @@ def check_codex_network(codex_home: Path | None = None) -> Check:
     return off
 
 
-def installed_plugins(runtime: Runtime) -> str:
-    code, out = run([runtime.exe, "plugin", "list"], timeout=180)
-    return out if code == 0 else ""
-
-
-def install_plugin(runtime: Runtime, repo: str, plugin: str,
-                   codex_ref: str = "") -> Check:
-    """Add the marketplace, install, then prove it by re-listing.
-
-    Both runtimes accept the same two-step marketplace flow (verified on
-    claude 2.1.x and codex-cli 0.144.6); only the install verb differs, and a
-    repo may ask Codex for an explicit `--ref`.
-    """
-    label = f"{plugin} ({runtime.name})"
-    add = [runtime.exe, "plugin", "marketplace", "add", repo]
-    if codex_ref and runtime.name == "codex":
-        add += ["--ref", codex_ref]
-    code, out = run(add, timeout=300)
-    if code != 0 and "already" not in out.lower():
-        return Check(label, MISSING, "marketplace add failed", out.strip()[:200],
-                     required=False)
-    code, out = run([runtime.exe, "plugin", runtime.install_verb, f"{plugin}@{plugin}"],
-                    timeout=300)
-    if code != 0 and "already" not in out.lower():
-        return Check(label, MISSING, "install failed", out.strip()[:200], required=False)
-    # The verification that matters: does the runtime itself list it now?
-    if plugin in installed_plugins(runtime):
-        return Check(label, OK, "installed and listed", required=False)
-    return Check(label, UNVERIFIED,
-                 "install reported success but the plugin is not in `plugin list`",
-                 f"Run `{runtime.name} plugin list` yourself before relying on it.",
-                 required=False)
-
-
-ADHD_EXPLANATION = """\
-  i-have-adhd is OPTIONAL (ayghri/i-have-adhd, MIT). It makes every reply
-  action-first: the next step first, numbered steps, lists of five at most,
-  one concrete next action, no preamble or recap. Shorter replies, so it pairs
-  well with lite mode, and like Caveman it never touches your documents.
-  Start it in a session with /i-have-adhd ($i-have-adhd on Codex); say
-  "normal mode" to stop."""
-
-
-def offer_plugins(runtime: Runtime, mode: str = "standard") -> list[Check]:
-    checks: list[Check] = []
-    listing = installed_plugins(runtime)
-    lite = mode == "lite"
-
-    if "ponytail" in listing:
-        checks.append(Check(f"ponytail ({runtime.name})", OK, "already installed",
-                            required=False))
-    elif confirm(f"Install Ponytail for {runtime.name}? (recommended — keeps "
-                 f"generated code and prose minimal)"):
-        checks.append(install_plugin(runtime, "DietrichGebert/ponytail", "ponytail"))
-    else:
-        checks.append(Check(f"ponytail ({runtime.name})", OPTIONAL, "declined",
-                            required=False))
-
-    if "caveman" in listing:
-        checks.append(Check(f"caveman ({runtime.name})", OK, "already installed",
-                            required=False))
-    else:
-        print(f"\n{CAVEMAN_EXPLANATION}\n")
-        if confirm(f"Install Caveman for {runtime.name}?", default=lite):
-            checks.append(install_plugin(runtime, "JuliusBrussee/caveman", "caveman"))
-            level = "full" if lite else "lite"
-            print(f"  Installed. Say `/caveman {level}` in a session "
-                  f"(`$caveman` on Codex){' for the biggest saving in lite mode' if lite else ''}.")
-        else:
-            checks.append(Check(f"caveman ({runtime.name})", OPTIONAL,
-                                "declined — nothing depends on it", required=False))
-
-    if "i-have-adhd" in listing:
-        checks.append(Check(f"i-have-adhd ({runtime.name})", OK, "already installed",
-                            required=False))
-    else:
-        print(f"\n{ADHD_EXPLANATION}\n")
-        if confirm(f"Install i-have-adhd for {runtime.name}?", default=lite):
-            checks.append(install_plugin(runtime, "ayghri/i-have-adhd", "i-have-adhd",
-                                         codex_ref="main"))
-        else:
-            checks.append(Check(f"i-have-adhd ({runtime.name})", OPTIONAL,
-                                "declined — nothing depends on it", required=False))
-    return checks
-
-
-FIRECRAWL_URL = "https://mcp.firecrawl.dev/v2/mcp"
-FIRECRAWL_KEY_VAR = "FIRECRAWL_API_KEY"
+FIRECRAWL_LOCAL = "firecrawl-local"
+# --public-only refuses localhost and private addresses, including after a
+# redirect: a posting is untrusted data and must not aim the scraper inward.
+FIRECRAWL_MCP_ARGS = ["mcp", "--public-only"]
 
 STATUSLINE_COMMAND = "python harness/telemetry_statusline.py"
 
@@ -770,67 +661,55 @@ def mcp_listing(runtime: Runtime) -> str:
     return out if code == 0 else ""
 
 
+def check_firecrawl_local() -> Check:
+    """One local binary replaces the two cloud MCP servers this used to offer."""
+    path, _ = find_tool(FIRECRAWL_LOCAL)
+    if not path:
+        return Check("Firecrawl Local", OPTIONAL,
+                     "not installed — pages that block a plain fetch stay `unverified`",
+                     "cargo install firecrawl-local (needs Rust and a C compiler)",
+                     required=False)
+    code, out = run([path, "--version"], timeout=60)
+    version = out.strip().splitlines()[0] if code == 0 and out.strip() else "found"
+    return Check("Firecrawl Local", OK, version, required=False)
+
+
 def offer_mcp(runtime: Runtime) -> list[Check]:
-    """Offer the two optional MCP servers. Both degrade cleanly when absent.
+    """Register Firecrawl Local's MCP server. Absent, pages stay `unverified`.
 
-    Playwright gives posting intake a real browser for JavaScript shells and
-    cookie walls; Firecrawl gives it structured extraction for career pages
-    and boards with no CLI. Without either, intake still works — a posting it
-    cannot read is marked `unverified` rather than guessed at.
+    Scraping, crawling, mapping and document parsing run on this machine with no
+    API key, and a JavaScript shell or cookie wall is rendered in the Chrome the
+    user already has. Only pages that refuse the machine go to Firecrawl Cloud,
+    and `FIRECRAWL_CLOUD=off` stops even that.
     """
-    checks: list[Check] = []
-    listing = mcp_listing(runtime)
+    label = f"firecrawl MCP ({runtime.name})"
 
-    if "playwright" in listing:
-        checks.append(Check(f"playwright MCP ({runtime.name})", OK,
-                            "already configured", required=False))
-    elif confirm(f"Add the Playwright MCP server to {runtime.name}? (optional — lets "
-                 f"job-posting intake read JavaScript-rendered pages)"):
-        code, out = run([runtime.exe, "mcp", "add", "playwright", "--",
-                         "npx", "@playwright/mcp@latest"], timeout=300)
-        ok = code == 0 and "playwright" in mcp_listing(runtime)
-        checks.append(Check(
-            f"playwright MCP ({runtime.name})", OK if ok else UNVERIFIED,
-            "configured" if ok else "add command ran but the server is not listed",
-            "" if ok else out.strip()[:200], required=False))
-    else:
-        checks.append(Check(f"playwright MCP ({runtime.name})", OPTIONAL,
-                            "declined — blocked pages will be marked `unverified`",
-                            required=False))
+    if "firecrawl" in mcp_listing(runtime):
+        return [Check(label, OK, "already configured", required=False)]
 
-    if "firecrawl" in listing or "fcrawl" in listing:
-        checks.append(Check(f"firecrawl MCP ({runtime.name})", OK,
-                            "already configured", required=False))
-    elif confirm(f"Add the Firecrawl MCP server to {runtime.name}? (optional — "
-                 f"structured extraction for career pages and non-CLI boards)"):
-        has_key = bool(os.environ.get(FIRECRAWL_KEY_VAR))
-        # The key is referenced by variable NAME, never read or written here.
-        # Without one, the keyless tier still provides search/scrape/parse.
-        if runtime.name == "claude":
-            cmd = [runtime.exe, "mcp", "add", "--transport", "http",
-                   "firecrawl", FIRECRAWL_URL]
-            if has_key:
-                cmd += ["--header", f"Authorization: Bearer ${{{FIRECRAWL_KEY_VAR}}}"]
-        else:
-            cmd = [runtime.exe, "mcp", "add", "firecrawl", "--url", FIRECRAWL_URL]
-            if has_key:
-                cmd += ["--bearer-token-env-var", FIRECRAWL_KEY_VAR]
-        code, out = run(cmd, timeout=300)
-        ok = code == 0 and "firecrawl" in mcp_listing(runtime)
-        tier = "authenticated" if has_key else "keyless tier (rate-limited)"
-        checks.append(Check(
-            f"firecrawl MCP ({runtime.name})", OK if ok else UNVERIFIED,
-            tier if ok else "add command ran but the server is not listed",
-            "" if ok else out.strip()[:200], required=False))
-        if not has_key:
-            print(f"  Using the keyless tier. A free account at https://firecrawl.dev "
-                  f"gives more quota — no payment needed. Set {FIRECRAWL_KEY_VAR} in "
-                  f"your environment and re-run setup — setup passes the variable "
-                  f"name to the runtime and never reads or stores the key itself.")
-    else:
-        checks.append(Check(f"firecrawl MCP ({runtime.name})", OPTIONAL, "declined",
-                            required=False))
-    return checks
+    path, _ = find_tool(FIRECRAWL_LOCAL)
+    if not path:
+        return [Check(label, OPTIONAL, "not configured — Firecrawl Local is not installed",
+                      f"cargo install {FIRECRAWL_LOCAL}, then re-run setup",
+                      required=False)]
+
+    if not confirm(f"Add the Firecrawl Local MCP server to {runtime.name}? (optional — "
+                   f"reads JavaScript-rendered and bot-walled pages on this machine, "
+                   f"no API key)"):
+        return [Check(label, OPTIONAL,
+                      "declined — blocked pages will be marked `unverified`",
+                      required=False)]
+
+    code, out = run([runtime.exe, "mcp", "add", "firecrawl", "--",
+                     path, *FIRECRAWL_MCP_ARGS], timeout=300)
+    ok = code == 0 and "firecrawl" in mcp_listing(runtime)
+    if ok:
+        print("  Scrapes run on this machine. Only pages that refuse it are fetched by\n"
+              "  Firecrawl Cloud; set FIRECRAWL_CLOUD=off to refuse that too.")
+    return [Check(
+        label, OK if ok else UNVERIFIED,
+        "configured" if ok else "add command ran but the server is not listed",
+        "" if ok else out.strip()[:200], required=False)]
 
 
 # --------------------------------------------------------------------------
@@ -956,7 +835,7 @@ def main(argv: list[str] | None = None) -> int:
             section("How you will run it")
             plan, mode = choose_mode()
             print(f"  {seed_preferences(plan, mode)}")
-        if offer_express(mode):
+        if offer_express():
             AUTO_YES = True
             print("\nExpress setup: taking the recommended answer to each item.")
 
@@ -968,6 +847,7 @@ def main(argv: list[str] | None = None) -> int:
     checks.append(check_bun())
     checks.extend(check_tex(quick=args.quick))
     checks.append(check_poppler())
+    checks.append(check_firecrawl_local())
     checks.append(check_simple("pandoc", "pandoc", ["--version"], required=False))
     for check in checks:
         detail = f" — {check.detail}" if check.detail else ""
@@ -1019,8 +899,6 @@ def main(argv: list[str] | None = None) -> int:
 
     if runtimes and not DOCTOR_ONLY:
         for runtime in runtimes:
-            section(f"Plugins for {runtime.name}")
-            checks.extend(offer_plugins(runtime, mode))
             section(f"Optional MCP servers for {runtime.name}")
             checks.extend(offer_mcp(runtime))
             if runtime.name == "claude":

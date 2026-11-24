@@ -259,9 +259,12 @@ class Attribution(unittest.TestCase):
 
     def test_notice_credits_every_bundled_component(self):
         text = flat(ROOT / "NOTICE.md")
-        for name in ("ai-job-search", "humanizer", "ponytail", "caveman",
-                     "pyyaml", "openpyxl", "pypdf"):
+        # The three style plugins this fork dropped are not credited: nothing of
+        # theirs ships, and setup no longer offers to install them.
+        for name in ("ai-job-search", "humanizer", "pyyaml", "openpyxl", "pypdf"):
             self.assertIn(name, text)
+        for dropped in ("ponytail", "caveman", "i-have-adhd"):
+            self.assertNotIn(dropped, text)
 
     def test_notice_separates_original_from_inherited(self):
         text = flat(ROOT / "NOTICE.md")

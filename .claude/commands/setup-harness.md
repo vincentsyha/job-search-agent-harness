@@ -24,36 +24,38 @@ stops trusting the system with anything.
 ## Step 0a: Environment check (before anything else)
 
 The harness depends on tools this repo cannot ship — TeX, poppler, Bun, the Python
-packages, the Playwright and Firecrawl MCP servers. A user missing one finds out
+packages, and the optional Firecrawl Local MCP server. A user missing one finds out
 mid-application, which is the worst possible moment. So check first, fix what can be
 fixed, and walk them through the rest.
 
 1. Run `python harness_setup.py --doctor --quick` and read the table.
-2. Run `claude mcp list` (or the runtime's equivalent) and note whether `playwright`
-   and `fcrawl`/`firecrawl` are configured.
-3. If everything required is OK and both MCP servers are present, say one line
+2. Run `claude mcp list` (or the runtime's equivalent) and note whether `firecrawl` is
+   configured.
+3. If everything required is OK and the Firecrawl server is present, say one line
    ("environment checked — everything's in place") and move on to Step 0.
 4. If anything is missing, tell them what and why it matters, then:
-   - **Installable by script** (Python packages, portal CLI deps, plugins, Playwright
-     MCP): offer to run `python harness_setup.py --yes` — it installs the recommended
-     set and verifies every install. Doing this once covers all of it.
-   - **Firecrawl** needs an account, so the script alone can't finish it. Walk them
-     through it, one step at a time, waiting between steps:
+   - **Installable by script** (Python packages, portal CLI deps, the Firecrawl Local MCP
+     registration): offer to run `python harness_setup.py --yes` — it installs the
+     recommended set and verifies every install. Doing this once covers all of it.
+   - **Firecrawl Local** needs Rust, and setup will not compile things for them. Walk
+     them through it, one step at a time, waiting between steps:
 
-     > Firecrawl (https://github.com/firecrawl/firecrawl) is a web-scraping service
-     > this system uses in exactly two places: reading job postings that block a plain
-     > fetch, and extracting listings from careers pages with no CLI. Without it those
+     > Firecrawl Local (https://github.com/firecrawl/firecrawl) reads the pages this
+     > system fetches: job postings that block a plain request, and careers pages with no
+     > CLI. It runs on your machine with no account and no API key. Without it those
      > pages are marked `unverified` instead — the system works, it just confirms less.
      >
-     > a. Create a free account at https://firecrawl.dev (Google/GitHub sign-in, no
-     >    payment) and copy your API key — it starts with `fc-`. Don't paste it here.
-     > b. In a terminal, run this yourself with YOUR_KEY replaced:
-     >    `claude mcp add --transport http --scope user fcrawl https://mcp.firecrawl.dev/YOUR_KEY/v2/mcp`
-     > c. Restart the agent, then verify with `claude mcp list` — `fcrawl` should be
+     > a. Install Rust if you have not: https://rustup.rs, then restart the terminal.
+     > b. Run `cargo install firecrawl-local`. This compiles from source and takes several
+     >    minutes. Chrome or Chromium, if you have one, is used to render JavaScript
+     >    pages; without one, static pages still work.
+     > c. Run `firecrawl-local --version`, then `python harness_setup.py` and accept the
+     >    offer to register it. Verify with `claude mcp list` — `firecrawl` should be
      >    listed. If it isn't, say so; don't report success.
-
-     If they'd rather not sign up, `python harness_setup.py` offers a keyless tier —
-     rate-limited but functional.
+     >
+     > By default only pages that refuse your machine are fetched by Firecrawl Cloud. Set
+     > `FIRECRAWL_CLOUD=off` to keep every fetch local, at the cost of more pages coming
+     > back `unverified`.
 5. Anything the doctor marks MISSING that needs a system installer (TeX, poppler, Bun):
    give them the fix command from the doctor's own output and offer to continue setup
    without it, naming what won't work until it's installed.
@@ -96,10 +98,7 @@ in plain words:
 Recommend by plan, and let them overrule it. Record `usage.plan` and `usage.mode` in
 `preferences.yaml` (`lite`, or `focused` for standard), creating the file if needed and
 never removing other keys. **Lite → run `/lite setup` instead of the steps below; it
-covers onboarding in its own short form.** For lite, check `claude plugin list` (Codex:
-`codex plugin list`): if Caveman or i-have-adhd is missing, explain in one line each that
-they shorten replies and never touch documents, and offer to install them with the
-commands in `RUNTIME-MAP.md` §6, only on a yes.
+covers onboarding in its own short form.**
 
 For standard, say what is about to happen, then let them choose — with the time cost
 stated, because "onboarding" with no end in sight is where people give up:

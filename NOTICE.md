@@ -12,12 +12,10 @@ Bundled or installed third-party components:
 - **Humanizer** by blader (https://github.com/blader/humanizer), MIT —
   vendored skill at version 2.9.1. See `.claude/skills/humanizer/LICENSE` and
   `.claude/skills/humanizer/PROVENANCE.md`.
-- **Ponytail** by DietrichGebert (https://github.com/DietrichGebert/ponytail),
-  MIT — installed at setup as a development/runtime discipline plugin.
-- **Caveman** by JuliusBrussee (https://github.com/JuliusBrussee/caveman),
-  MIT — offered at setup (optional; default in lite mode) for terse replies.
-- **i-have-adhd** by ayghri (https://github.com/ayghri/i-have-adhd), MIT —
-  offered at setup (optional; default in lite mode) for action-first replies.
+
+**Firecrawl Local** (https://github.com/firecrawl/firecrawl), MIT — installed by the
+user, never bundled, and optional. Setup registers its MCP server when the binary is on
+PATH; nothing in this repository ships or depends on it.
 
 Python dependencies, used normally and not bundled: PyYAML (MIT), openpyxl
 (MIT), pypdf (BSD-3-Clause). The Raleway fonts shipped with upstream's cover

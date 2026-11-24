@@ -23,7 +23,7 @@ _COMMANDS = ('msedge', 'microsoft-edge', 'google-chrome', 'chromium', 'chromium-
 # Open pages check in at least every 15 s (browsers slow hidden windows to about once a minute).
 # Counting checks instead of clock time means a sleeping laptop never counts as idle.
 CHECK_SECONDS = 10
-IDLE_CHECKS = 18  # ponytail: ~3 awake minutes without page contact; shorten if users want faster exit
+IDLE_CHECKS = 18  # ~3 awake minutes without page contact; shorten for a faster exit.
 
 
 def _default_browser():

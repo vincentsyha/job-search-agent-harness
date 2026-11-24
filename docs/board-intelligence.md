@@ -46,13 +46,13 @@ one, not merely that it returns results.
 A plain fetch gets navigation, a footer and an empty results container. The give-away is
 a 200 response with plausible-looking HTML and no postings.
 
-Escalate per `RUNTIME-MAP.md`: Firecrawl structured extraction first (cheaper, more
-stable), Playwright when the page needs real interaction. If neither is configured, mark
+Escalate per `RUNTIME-MAP.md`: Firecrawl Local first, since it renders the page in the
+browser already installed and returns clean text. If it is not configured, mark
 the source `unverified` and say so. Never write a bespoke browser driver in this repo.
 
 ### Bot walls answer 200 with a challenge page
 Same shape as above, different cause, and worth distinguishing in the note — a JS shell
-will work with Playwright, a bot wall often will not.
+will often render under Firecrawl Local's local browser, a bot wall often will not.
 
 ### Honour crawl-delay, and enforce it in code
 A board declaring `Crawl-delay: 5` needs five seconds *enforced between requests by the

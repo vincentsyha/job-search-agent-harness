@@ -253,7 +253,7 @@ workflows themselves.
 | Harness, checks, tracker | Python 3.10+ (PyYAML, openpyxl, pypdf) |
 | Board search | Bun + TypeScript command-line tools, no runtime dependencies |
 | Documents | TeX with `lualatex` and `xelatex`; poppler for `pdftotext` and `pdfinfo` |
-| Optional | Playwright and Firecrawl MCP servers for pages that will not load plainly; pandoc for Word files |
+| Optional | Firecrawl Local for pages that will not load plainly; pandoc for Word files |
 
 Node is needed alongside Bun. Everything optional degrades cleanly when absent, and
 `harness_setup.py` reports what you actually have.
@@ -268,8 +268,10 @@ one; Jobindex, Jobnet, Jobdanmark, Job Bank (Canada), Jobbank and Freehire are t
 `/add-portal` builds a new one for your local board.
 
 When a page comes back as an empty JavaScript shell or a cookie wall, the workflow can use
-a **Playwright or Firecrawl MCP server** if you have one. Both are optional, but career
-pages are often built in the browser, so they are worth having. The harness never grows
+**Firecrawl Local** ([firecrawl/firecrawl](https://github.com/firecrawl/firecrawl)) if you
+have it. One binary scrapes, crawls and maps pages on your own machine, renders them in
+the Chrome you already have, and needs no account or API key. It is optional, but career
+pages are often built in the browser, so it is worth having. The harness never grows
 its own scraper: the workflows forbid writing browser or scraping code into this
 repository, so there is no proxy layer and no headless-browser fleet here.
 
@@ -293,8 +295,8 @@ sends to its own model provider.
 **Does it submit applications for me?** No, by design. It prepares the package; you send
 it.
 
-**Does it need an API key?** Only if you choose Firecrawl. Everything else runs on the
-coding-agent subscription you already have.
+**Does it need an API key?** No. Everything, including the optional page reader, runs on
+the coding-agent subscription you already have and tools installed on your own machine.
 
 **Will it work in my country?** The tracker, checks and documents work anywhere. Board
 search ships with the boards listed above, and `/add-portal` adds yours. Employer career
@@ -368,8 +370,9 @@ application archives, the tracker, template and portal registration, the securit
 and the test suites. **This harness would not exist without it**, and none of that work is
 presented as original here.
 
-It also builds on four MIT-licensed tools: **Humanizer** (blader), **Ponytail**
-(DietrichGebert), **Caveman** (JuliusBrussee) and **i-have-adhd** (ayghri).
+It also builds on **Humanizer** (blader), MIT-licensed and vendored. **Firecrawl Local**
+([firecrawl/firecrawl](https://github.com/firecrawl/firecrawl), MIT) is an optional
+external tool that setup registers when you have it.
 
 What this project adds (the Codex port, the fact gate and evidence register, lite mode,
 the recruiter pass, intake from any format, the preference engine, saved progress and the

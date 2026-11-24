@@ -123,7 +123,9 @@ def save_settings(root: Path, changes: dict) -> dict:
 
 def write_preferences(root: Path, prefs: dict) -> None:
     """Rewrite preferences.yaml, keeping the previous copy as preferences.yaml.bak.
-    ponytail: comments in the file are not kept; the workflows write it without any."""
+
+    Comments in the file are not kept; the workflows write it without any.
+    """
     path = root / "preferences.yaml"
     if path.exists():
         shutil.copy2(path, path.with_name("preferences.yaml.bak"))
