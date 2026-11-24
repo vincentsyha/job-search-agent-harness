@@ -23,7 +23,7 @@ from pathlib import Path
 
 from app import engines
 
-MAX_SECONDS = 45 * 60  # ponytail: one cap for every run; an apply takes 10-15 minutes
+MAX_SECONDS = 45 * 60  # One cap for every run; an apply takes 10-15 minutes.
 HISTORY = Path("state") / "app-history.jsonl"
 
 PREAMBLE = """You are running inside Candor, a desktop app over this job-search harness.

@@ -33,8 +33,9 @@ Use it directly. Archive it verbatim as `posting_source/pasted.md`. No fetching 
 ### Rung 2 — URL
 1. Fetch directly (`WebFetch`, or the runtime's equivalent per `RUNTIME-MAP.md`).
 2. If the fetch is blocked, returns a JavaScript shell, a cookie wall, or obvious
-   boilerplate instead of the posting: escalate to the **Playwright or Firecrawl MCP**
-   if configured. Never write repo-local browser or scraping code.
+   boilerplate instead of the posting: escalate to **Firecrawl Local**, which renders
+   the page in your own browser, if configured. Never write repo-local browser or
+   scraping code.
 3. Archive the extracted text as `posting_source/fetched.md`, with the URL and retrieval
    date at the top.
 4. If every route fails, drop to rung 6.
@@ -132,8 +133,8 @@ and a pointer hands them nothing. Duplication between `job_posting.md` and
 original, and having both is how you can later tell a reformatting from a change.
 
 **2. A body that arrived through a tool is written to a file before anything is
-drafted.** Any posting text produced in-session by a portal CLI, an MCP job tool,
-Firecrawl or Playwright is on the same footing as a page fetch: it goes into
+drafted.** Any posting text produced in-session by a portal CLI, an MCP job tool, or a
+Firecrawl Local scrape is on the same footing as a page fetch: it goes into
 `posting_source/` as a file, verbatim, first (rung 2b). A metadata note saying the body
 was returned is not archival — the body was in the transcript and the transcript is not
 the archive. This applies to a `/scrape` `detail` result the user then asks to apply to,

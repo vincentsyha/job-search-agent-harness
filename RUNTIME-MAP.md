@@ -72,7 +72,7 @@ prohibits subagents and does not run this review step.
 
 | Named in the command markdown | Claude Code | Codex |
 |---|---|---|
-| `WebFetch` / `WebSearch` | native tools | Use the built-in web tool actually exposed in the session (for example `web.run` or `web__run` through tool discovery); do not assume its callable name is `web_search`. CLI `web_search` is also a configuration setting: cached results do not establish that a posting is live. Check the returned source and retrieval evidence. If no web tool works, use configured Firecrawl or Playwright MCP tools; otherwise **report the inability — never silently skip the step**. Do not change the user's configuration automatically. |
+| `WebFetch` / `WebSearch` | native tools | Use the built-in web tool actually exposed in the session (for example `web.run` or `web__run` through tool discovery); do not assume its callable name is `web_search`. CLI `web_search` is also a configuration setting: cached results do not establish that a posting is live. Check the returned source and retrieval evidence. If no web tool works, use the configured Firecrawl Local MCP tools; otherwise **report the inability — never silently skip the step**. Do not change the user's configuration automatically. |
 | `Glob` / `Read` | native tools | shell equivalents (`ls`/pattern match, file read) |
 | "Read the PDF" (visual page check) | Read tool on the PDF | `pdftoppm -png -r 50 <pdf> <prefix>` (poppler, the package `pdftotext` comes from) writes `<prefix>-1.png`, `<prefix>-2.png`, …; open each with Codex's `view_image` tool. 50 DPI shows page count, page breaks and overflow; re-render one page with `-r 100 -f N -l N` when words must be read. No `pdftoppm`, or a model without image input → say the visual check did not run; never mark it passed |
 | `AskUserQuestion` | native tool | Ask one concise plain-text question that names the options inline ("focused, balanced or full?"), then stop and wait for the reply. Codex's `request_user_input` tool exists only in Plan mode. Never answer for the user to keep going |
@@ -111,8 +111,15 @@ own words in single quotes; an apostrophe is doubled in PowerShell.
 |---|---|---|
 | `/gmail-sync` | Gmail MCP (hard requirement of upstream's design; no IMAP fallback) | Feature unavailable. Say so. |
 | `/notion-sync` | Notion MCP | Unavailable; upstream ships its own "adapting to another tool" contract |
-| Intake browser escalation | Playwright MCP | Plain fetch; blocked pages become `posting_state: unverified` |
-| Structured extraction (intake, company careers pages, non-CLI boards) | Firecrawl MCP (keyless tier works) | Plain fetch + `unverified`; non-CLI boards skipped **with a notice** |
+| Intake browser escalation and structured extraction (intake, company careers pages, non-CLI boards) | Firecrawl Local MCP (`firecrawl-local mcp --public-only`) | Plain fetch + `unverified`; non-CLI boards skipped **with a notice** |
+
+Firecrawl Local replaces the two servers this used to offer. One binary scrapes, crawls,
+maps and parses documents on the user's machine with no API key, renders a JavaScript
+shell or cookie wall in the Chrome already installed, and needs no account. `--public-only`
+is not optional: a posting is untrusted data, and it must not point the scraper at
+localhost or the user's private network. Only pages that refuse the machine go to
+Firecrawl Cloud, and `FIRECRAWL_CLOUD=off` refuses that too — say which posture the user
+is in rather than promising a local-only fetch that did not happen.
 
 Degradation is always *visible*. A missing optional dependency changes what the system
 can confirm, and the user is told which.
@@ -139,26 +146,22 @@ The one real per-runtime divergence.
 | Reporting | Percentages may be quoted, with their caveats | **Never print a percentage** for harness continuity or usage telemetry. Follow the milestone cadence; do not infer context utilization from account-wide limits. This does not prohibit measured ATS scores. |
 | Caveats | `used_percentage` is input-tokens-only; null before the first call; resets after `/compact` | — |
 
-## 6. Plugin installs (handled by `harness_setup.py`)
+## 6. MCP servers and skills (handled by `harness_setup.py`)
 
-| Plugin | Claude Code | Codex |
+| Component | Claude Code | Codex |
 |---|---|---|
-| Ponytail | `claude plugin marketplace add DietrichGebert/ponytail` + `claude plugin install ponytail@ponytail` | `codex plugin marketplace add DietrichGebert/ponytail` + `codex plugin add ponytail@ponytail` |
-| Caveman (optional; default yes in lite mode) | `claude plugin marketplace add JuliusBrussee/caveman` + `claude plugin install caveman@caveman` | `codex plugin marketplace add JuliusBrussee/caveman` + `codex plugin add caveman@caveman` |
-| i-have-adhd (optional; default yes in lite mode). Start per session: `/i-have-adhd` (Codex `$i-have-adhd`, which Codex never starts on its own); stop: "normal mode" | `claude plugin marketplace add ayghri/i-have-adhd` + `claude plugin install i-have-adhd@i-have-adhd` | `codex plugin marketplace add ayghri/i-have-adhd --ref main` + `codex plugin add i-have-adhd@i-have-adhd` |
 | Humanizer | Vendored — no install (`.claude/skills/humanizer/`) | Vendored; read `.claude/skills/humanizer/SKILL.md` by path (§1) and apply its checklist, attributed — **never skip the step** |
-| Playwright / Firecrawl MCP | `claude mcp add …` (offered at setup) | `codex mcp add …` (offered at setup) |
+| Firecrawl Local MCP | `claude mcp add firecrawl -- <path> mcp --public-only` (offered at setup) | `codex mcp add firecrawl -- <path> mcp --public-only` (offered at setup) |
 
-Both runtimes use the **same two-command marketplace mechanism**, verified working on
-claude 2.1.x and codex-cli 0.144.6. `npx skills add JuliusBrussee/caveman -a codex`
-remains a documented fallback if a future Codex drops plugin support.
+No agent plugins are installed. This fork dropped Ponytail, Caveman and i-have-adhd:
+none of the three ran during a job search, and the harness's own workflow rules already
+mandate the concise, action-first replies those plugins were offered for.
 
-Every install is verified by listing plugins afterwards. An install command that exits 0
-without the plugin appearing in `plugin list` is reported as unverified, not as success.
-
-An empty `codex plugin list` inside the sandbox is not proof that the host has no
-plugins. If it contradicts skills exposed in the session, verify the inventory with
-host-profile access through an approved escalation before offering an installation.
+Setup resolves `firecrawl-local` on PATH rather than pinning a path, and skips the offer
+entirely when the binary is absent — `cargo install firecrawl-local` needs Rust and a C
+compiler, so the doctor reports the install command instead of attempting it. An `mcp
+add` that exits 0 without the server appearing in `mcp list` is reported as unverified,
+not as success.
 
 ## 7. Explicitly identical — do NOT fork these
 

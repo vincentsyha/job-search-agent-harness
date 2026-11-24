@@ -12,12 +12,10 @@ Bundled or installed third-party components:
 - **Humanizer** by blader (https://github.com/blader/humanizer), MIT —
   vendored skill at version 2.9.1. See `.claude/skills/humanizer/LICENSE` and
   `.claude/skills/humanizer/PROVENANCE.md`.
-- **Ponytail** by DietrichGebert (https://github.com/DietrichGebert/ponytail),
-  MIT — installed at setup as a development/runtime discipline plugin.
-- **Caveman** by JuliusBrussee (https://github.com/JuliusBrussee/caveman),
-  MIT — offered at setup (optional; default in lite mode) for terse replies.
-- **i-have-adhd** by ayghri (https://github.com/ayghri/i-have-adhd), MIT —
-  offered at setup (optional; default in lite mode) for action-first replies.
+
+**Firecrawl Local** (https://github.com/firecrawl/firecrawl), MIT — installed by the
+user, never bundled, and optional. Setup registers its MCP server when the binary is on
+PATH; nothing in this repository ships or depends on it.
 
 Python dependencies, used normally and not bundled: PyYAML (MIT), openpyxl
 (MIT), pypdf (BSD-3-Clause). The Raleway fonts shipped with upstream's cover
@@ -57,12 +55,12 @@ letter class are under the SIL Open Font Licence and are inherited unchanged.
 Where this project reuses upstream's work, it reuses it in place rather than
 reimplementing it: `/rank`, `/outcome`, the templates, the guards
 and the tests are upstream's files, run unchanged, and the harness adds wrappers
-and new files alongside them. Sixteen upstream files carry deliberate
+and new files alongside them. Seventeen upstream files carry deliberate
 modifications — `/apply`, `/interview`, `/add-template`, `/add-portal`, `/expand`,
 the job-scraper skill and its query file (portal glob only), four job-application skill
 files, the CV template, the cover-letter class (one bold-face line), `AGENTS.md`,
-`CLAUDE.md` and the README. Each change and its reason is
-listed in `docs/REVIEW-HANDOFF.md` §4.1.
+`CLAUDE.md`, the README, and jobindex's `url-reference.md` (its example fetches).
+Each change and its reason is listed in `docs/REVIEW-HANDOFF.md` §4.1.
 
 One documented exception in the tests: `tests/test_readme_assets.py` no longer asserts the
 README contains an image. That assertion encoded upstream's mascot header,

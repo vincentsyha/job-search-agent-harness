@@ -142,7 +142,7 @@ so `/discover review` can find them later.
 
 **Companies of interest** — for each selected entry, fetch its `careers_url` and look for
 openings matching the profile. Escalate per `RUNTIME-MAP.md`: plain fetch → Firecrawl
-structured extraction → Playwright. **No custom scrapers.**
+Local. **No custom scrapers.**
 
 Record company-sourced results in `seen_jobs.json` too, with `source: company:<name>`, so
 a role found on an employer's own page is deduplicated against the same memory as a board
@@ -150,8 +150,9 @@ hit and is visible to `/rank`. The entry fields are additive — adding a source
 not disturb anything upstream reads.
 
 **A posting body you fetched does not survive this turn unless you write it down.** A
-portal CLI's `detail` command, a Firecrawl extraction or a Playwright read returns the
-full description into the conversation, and `seen_jobs.json` has nowhere to put it — it
+portal CLI's `detail` command, a Firecrawl Local scrape or a local-browser read returns
+the full description into the conversation, and `seen_jobs.json` has nowhere to put it —
+it
 stores title, company, URL, date and fit, and nothing else. So the moment the user says
 "apply to that one", the posting has to be fetched again, and by then a board listing may
 be gone.

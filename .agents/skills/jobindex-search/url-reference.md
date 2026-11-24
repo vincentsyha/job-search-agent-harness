@@ -65,27 +65,30 @@ Category uses a two-part path: `{group}/{slug}`:
 
 ## Examples
 
+Fetch any of these with Firecrawl Local, which renders the page in the local browser when
+jobindex serves a JavaScript shell:
+
 ```bash
 # Basic keyword search
-playwright-cli goto "https://www.jobindex.dk/jobsoegning?q=python+developer"
+firecrawl-local scrape "https://www.jobindex.dk/jobsoegning?q=python+developer" --markdown
 
 # Exact match search (single quotes around query)
-playwright-cli goto "https://www.jobindex.dk/jobsoegning?q=%27python+developer%27"
+firecrawl-local scrape "https://www.jobindex.dk/jobsoegning?q=%27python+developer%27" --markdown
 
 # Search in Storkøbenhavn area
-playwright-cli goto "https://www.jobindex.dk/jobsoegning/storkoebenhavn?q=python+developer"
+firecrawl-local scrape "https://www.jobindex.dk/jobsoegning/storkoebenhavn?q=python+developer" --markdown
 
 # Search with category + area
-playwright-cli goto "https://www.jobindex.dk/jobsoegning/it/itdrift/storkoebenhavn?q=data+engineer"
+firecrawl-local scrape "https://www.jobindex.dk/jobsoegning/it/itdrift/storkoebenhavn?q=data+engineer" --markdown
 
 # Last 7 days only
-playwright-cli goto "https://www.jobindex.dk/jobsoegning?q=data+engineer&jobage=7"
+firecrawl-local scrape "https://www.jobindex.dk/jobsoegning?q=data+engineer&jobage=7" --markdown
 
 # Page 2 of results
-playwright-cli goto "https://www.jobindex.dk/jobsoegning?q=data+engineer&page=2"
+firecrawl-local scrape "https://www.jobindex.dk/jobsoegning?q=data+engineer&page=2" --markdown
 
 # Everything combined
-playwright-cli goto "https://www.jobindex.dk/jobsoegning/storkoebenhavn?q=data+engineer&jobage=7&page=1"
+firecrawl-local scrape "https://www.jobindex.dk/jobsoegning/storkoebenhavn?q=data+engineer&jobage=7&page=1" --markdown
 ```
 
 ## Filters Available via UI Only

@@ -157,14 +157,13 @@ Flags: `--doctor` (check only, change nothing), `--yes` (accept recommended defa
 > fork-and-clone the upstream project, install each portal CLI by hand, and run `/setup`
 > and `/apply`. Follow this section instead.
 
-**Optional extras setup offers.** Ponytail (recommended). Caveman and
-[i-have-adhd](https://github.com/ayghri/i-have-adhd) — both optional, both explained at the
-prompt, both on by default in lite mode: Caveman makes the agent's replies terse,
-i-have-adhd makes them action-first (next step first, short numbered lists, one concrete
-next action). Neither touches your CV or letters. Start i-have-adhd with `/i-have-adhd`
-(`$i-have-adhd` in Codex) and stop either with "normal mode". Playwright and Firecrawl
-MCP — let posting intake read JavaScript-heavy and bot-walled pages; without them such
-pages are marked `unverified` rather than guessed at.
+**Optional extras setup offers.** One, and only one: **Firecrawl Local**, registered as
+its MCP server when `firecrawl-local` is on your PATH. It lets posting intake read
+JavaScript-heavy and bot-walled pages on your own machine, with no account and no API
+key; without it such pages are marked `unverified` rather than guessed at. Install it
+with `cargo install firecrawl-local` (needs Rust) and re-run setup. Setup installs no
+agent plugins: the workflow rules in `AGENTS.md` already require the concise,
+action-first replies those plugins existed to provide.
 
 **Using Codex?** Its default sandbox has no network, so the job-board search fails
 inside it until you allow it. The doctor shows a `Codex network` row. The three ways to

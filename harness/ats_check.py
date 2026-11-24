@@ -202,7 +202,7 @@ TOKEN = re.compile(r"\w+(?:['\u2019&]\w+)*[+#]*|[^\w\s'\u2019\-\u2010\u2011\u201
 
 def stem(word: str) -> str:
     """Fold a simple plural so `dashboard` and `dashboards` match both ways."""
-    # ponytail: plural s/es/ies only - analysis/analyses and -ing/-ed forms do
+    # Plural s/es/ies only - analysis/analyses and -ing/-ed forms do
     # not fold. A synonym after `|` in the keywords file covers them.
     if len(word) <= 3 or not word.isalpha():
         return word
@@ -396,7 +396,7 @@ def chunks(item: str) -> list[str]:
 
 def extract_keywords(posting: str) -> list[dict]:
     """Required/preferred keywords from the posting itself - the fallback path."""
-    # ponytail: English section headings, filler words and stopwords only, and
+    # English section headings, filler words and stopwords only, and
     # no synonyms. The drafter's keywords file is the primary path, and it is
     # how other languages (or a Danish posting against an English CV) work.
     posting = re.sub(r"<!--.*?-->", " ", posting, flags=re.S)  # hidden text is not the ad

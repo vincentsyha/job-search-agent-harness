@@ -56,7 +56,7 @@ Offer to propose more, drawn from two directions — both grounded in the regist
    commute radius that hire this skill set. This is the half that matters most, because
    these are the employers least likely to appear on a national board.
 
-Use web search, escalating to Firecrawl or Playwright per `RUNTIME-MAP.md` when a page
+Use web search, escalating to Firecrawl Local per `RUNTIME-MAP.md` when a page
 resists a plain fetch. No custom scrapers.
 
 Present proposals as a numbered list, each with a reason tied to their actual profile

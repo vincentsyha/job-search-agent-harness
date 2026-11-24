@@ -18,7 +18,7 @@ data and needs no editing to work for a different person.
 Scope: the two stock templates this repo generates, nothing else. It is a text
 transformer, not a LaTeX engine.
 
-ponytail: regex transform over a known-regular generated template; if templates
+The transform is a regex over a known-regular generated template. If templates
 ever diverge enough to break it, the fix is pandoc with a custom reader, not
 more regexes.
 """
