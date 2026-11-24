@@ -172,13 +172,27 @@ def candidate_files(scan_all: bool) -> list[Path]:
     return sorted(keep)
 
 
+def find_hits(text: str, strict: bool = False) -> list[tuple[int, str, str, bool]]:
+    """Return (line_number, label, value, blocks) for one block of text."""
+    patterns = [(label, pattern, True) for label, pattern in BLOCKING_PATTERNS]
+    patterns += [(label, pattern, strict) for label, pattern in ADVISORY_PATTERNS]
+
+    hits: list[tuple[int, str, str, bool]] = []
+    for number, line in enumerate(text.splitlines(), 1):
+        for label, pattern, blocks in patterns:
+            for match in pattern.finditer(line):
+                value = match.group(0)
+                if is_allowed(value, line, label):
+                    continue
+                hits.append((number, label, value, blocks))
+    return hits
+
+
 def scan(scan_all: bool = False,
          strict: bool = False) -> tuple[list, list]:
     """Return (blocking_hits, advisory_hits), each (path, line, label, value)."""
     blocking: list[tuple[str, int, str, str]] = []
     advisory: list[tuple[str, int, str, str]] = []
-    patterns = [(label, pattern, True) for label, pattern in BLOCKING_PATTERNS]
-    patterns += [(label, pattern, strict) for label, pattern in ADVISORY_PATTERNS]
 
     for path in candidate_files(scan_all):
         relative = path.relative_to(ROOT).as_posix()
@@ -188,15 +202,10 @@ def scan(scan_all: bool = False,
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        for number, line in enumerate(text.splitlines(), 1):
-            for label, pattern, blocks in patterns:
-                for match in pattern.finditer(line):
-                    value = match.group(0)
-                    if is_allowed(value, line, label):
-                        continue
-                    (blocking if blocks else advisory).append(
-                        (relative, number, label, value)
-                    )
+        for number, label, value, blocks in find_hits(text, strict):
+            (blocking if blocks else advisory).append(
+                (relative, number, label, value)
+            )
     return blocking, advisory
 
 

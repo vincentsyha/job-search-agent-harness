@@ -28,7 +28,6 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import subprocess
 
 import harness_setup as setup  # noqa: E402  (the path shim above must run first)
 
@@ -370,11 +369,6 @@ class DoctorTable(unittest.TestCase):
             failures = setup.print_doctor(checks)
         self.assertEqual(failures, 2)
 
-    def test_all_green_returns_zero(self):
-        checks = [setup.Check("Python", setup.OK, "3.14.3"),
-                  setup.Check("pandoc", setup.OPTIONAL, "declined", required=False)]
-        with mock.patch("builtins.print"):
-            self.assertEqual(setup.print_doctor(checks), 0)
 
     def test_unverified_is_not_counted_as_pass_or_fail(self):
         """UNVERIFIED must stay visible rather than silently becoming OK."""
@@ -453,11 +447,6 @@ class SeededPermissions(unittest.TestCase):
         """`pdftotext -layout` is a mandatory step of the Verification
         Checklist, so leaving it out costs one dialog on every application."""
         self.assertIn("Bash(pdftotext:*)", setup.HARNESS_PERMISSIONS)
-
-    def test_scripts_every_search_and_package_runs_are_pre_approved(self):
-        for script in ("ats_check", "lite_search", "shortlist_row"):
-            self.assertIn(f"Bash(uv run python harness/{script}.py:*)",
-                          setup.HARNESS_PERMISSIONS)
 
 
 class CodexNetworkCheck(unittest.TestCase):

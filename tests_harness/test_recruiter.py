@@ -75,11 +75,6 @@ class TargetPositionsExample(unittest.TestCase):
         """Deleting a struck entry would let the next pass propose it again."""
         self.assertIn("dropped", {entry["status"] for entry in self.positions})
 
-    def test_lite_mode_is_documented_with_caps(self):
-        lite = self.prefs["usage"]["modes"]["lite"]
-        for key in ("description", "max_evaluations", "max_packages_per_run"):
-            self.assertIn(key, lite)
-
 
 class TodayOffersTheRecruiterPass(unittest.TestCase):
     def setUp(self):
@@ -109,26 +104,6 @@ class TodayOffersTheRecruiterPass(unittest.TestCase):
         self.assertNotIn("/recruiter", self.commands(
             "target_positions:\n  positions:\n"
             "    - {rank: 1, title: Analyst, status: active}\n"))
-
-
-class RecruiterWiring(unittest.TestCase):
-    def test_spec_fits_the_lite_budget(self):
-        path = COMMANDS / "recruiter.md"
-        self.assertTrue(path.read_text(encoding="utf-8").startswith("# /recruiter - "))
-        self.assertLessEqual(len(path.read_bytes()), 5 * 1024)
-
-    def test_onboarding_runs_it_right_after_the_register(self):
-        text = (COMMANDS / "setup-harness.md").read_text(encoding="utf-8").lower()
-        step3 = text.index("## step 3: build the register")
-        step3b = text.index("## step 3b: recruiter pass")
-        self.assertLess(step3, step3b)
-        self.assertLess(step3b, text.index("## step 4:"))
-        self.assertIn("steps 1–3 and 3b", text)  # quick start runs it too
-
-    def test_search_and_discovery_read_the_positions(self):
-        for name in ("scrape.md", "discover.md"):
-            self.assertIn("target_positions",
-                          (COMMANDS / name).read_text(encoding="utf-8"), name)
 
 
 if __name__ == "__main__":

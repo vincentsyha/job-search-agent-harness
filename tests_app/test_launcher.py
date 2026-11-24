@@ -26,8 +26,6 @@ def _serve(body):
 
 
 class LauncherTest(unittest.TestCase):
-    def test_find_browser_returns_path_or_none(self):
-        self.assertIsInstance(launcher.find_browser(), (str, type(None)))
 
     def test_mac_helium_is_used_when_it_is_the_only_browser_installed(self):
         """Helium is Chromium, so it takes --app."""

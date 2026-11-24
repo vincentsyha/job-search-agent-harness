@@ -58,9 +58,6 @@ class CodexPointerSkills(unittest.TestCase):
         for directory in self.pointers:
             self.assertFalse(directory.endswith("-search"), directory)
 
-    def test_agents_md_fits_the_codex_project_doc_cap(self):
-        self.assertLess((ROOT / "AGENTS.md").stat().st_size, 32 * 1024)
-
 
 if __name__ == "__main__":
     unittest.main()

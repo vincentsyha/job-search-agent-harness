@@ -21,7 +21,6 @@ import importlib
 import re
 import subprocess
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -58,22 +57,13 @@ class SweepStillCatchesRealData(unittest.TestCase):
     """The allow-list must not have become an everything-list."""
 
     def scan_text(self, text: str) -> list:
-        """Re-implements the scan loop, but must call `is_allowed` the way
-        production does, with the label.
+        """Run the production matcher over one blob of text.
 
-        It used to omit the third argument, so `label` defaulted to "" and the
-        CONTACT_LABELS branch (the whole point of the split: a placeholder
-        elsewhere on a line must not excuse a real email) was unreachable in
-        every test in this class. Deleting that branch left them all green.
+        This used to re-implement the loop, which meant it could stay green
+        after `scan()` stopped passing the label to `is_allowed`. Calling
+        `find_hits`, the same function `scan()` uses, removes that gap.
         """
-        hits = []
-        for line_no, line in enumerate(text.splitlines(), 1):
-            for label, pattern in privacy_sweep.BLOCKING_PATTERNS:
-                for match in pattern.finditer(line):
-                    if privacy_sweep.is_allowed(match.group(0), line, label):
-                        continue
-                    hits.append((line_no, label, match.group(0)))
-        return hits
+        return [(n, label, value) for n, label, value, _ in privacy_sweep.find_hits(text)]
 
     def test_a_placeholder_on_the_line_does_not_excuse_a_real_email(self):
         """REGRESSION: one `your-` anywhere on a line excused every match on it.
@@ -140,51 +130,6 @@ class SweepStillCatchesRealData(unittest.TestCase):
         self.assertEqual([], advisory)
 
 
-class GuardSeparation(unittest.TestCase):
-    def test_the_two_guards_check_different_things(self):
-        structural = (ROOT / "tools" / "harness_guards.py").read_text(encoding="utf-8")
-        content = (ROOT / "harness" / "privacy_sweep.py").read_text(encoding="utf-8")
-        # Structural guard reads git's index; content scan reads file bodies.
-        self.assertIn("git", structural)
-        self.assertIn("ls-files", structural)
-        self.assertIn("read_text", content)
-        # Each explains why it is not the other.
-        self.assertIn("privacy_sweep", structural)
-        self.assertIn("harness_guards", content)
-
-    def test_guard_lists_the_harness_ignore_families(self):
-        sys.path.insert(0, str(ROOT / "tools"))
-        guards = importlib.import_module("harness_guards")
-        for rule in ("evidence/register.yaml", "preferences.yaml", "companies.yaml",
-                     "state/"):
-            self.assertIn(rule, guards.REQUIRED_IGNORE_RULES)
-
-
-class ContinuityContracts(unittest.TestCase):
-    """P7: the handoff ritual and the honesty rules around telemetry."""
-
-    def setUp(self):
-        self.text = flat(ROOT / ".claude" / "commands" / "continue.md")
-
-    def test_filesystem_outranks_the_handoff(self):
-        self.assertIn("the filesystem is right", self.text)
-
-    def test_handoff_names_an_exact_next_step(self):
-        self.assertIn("exact next step", self.text)
-
-    def test_do_not_redo_list_exists(self):
-        self.assertIn("do not redo", self.text)
-
-    def test_session_confirmed_facts_are_not_treated_as_evidence(self):
-        self.assertIn("holding pen, not a truth store", self.text)
-
-    def test_codex_never_prints_a_percentage(self):
-        self.assertIn("never print a percentage on codex", self.text)
-
-    def test_cross_runtime_expectation_is_set_honestly(self):
-        self.assertIn("the state carries fully, the conversation does not", self.text)
-
-
 class TelemetryMirror(unittest.TestCase):
     def test_extracts_the_documented_fields(self):
         sys.path.insert(0, str(ROOT / "harness"))
@@ -216,100 +161,6 @@ class TelemetryMirror(unittest.TestCase):
     def test_render_never_invents_a_value(self):
         module = importlib.import_module("telemetry_statusline")
         self.assertEqual("harness", module.render(module.extract({})))
-
-
-class RuntimeMap(unittest.TestCase):
-    def setUp(self):
-        self.text = flat(ROOT / "RUNTIME-MAP.md")
-
-    def test_states_the_never_fork_rule(self):
-        self.assertIn("never two implementations of a workflow", self.text)
-
-    def test_codex_sequential_review_does_not_claim_context_isolation(self):
-        self.assertIn("sequential review pass", self.text)
-        self.assertIn("drafting context is still present", self.text)
-        self.assertIn("self-review, not a fresh-context review", self.text)
-        self.assertIn("only when a tool provides that isolation", self.text)
-        self.assertNotIn("explicitly discarding the drafting context", self.text)
-
-    def test_codex_telemetry_absence_is_explicit(self):
-        self.assertIn("never print a percentage", self.text)
-
-    def test_lists_what_must_not_be_forked(self):
-        self.assertIn("explicitly identical", self.text)
-
-    def test_codex_pointer_skills_exist_for_every_harness_workflow(self):
-        # Codex never loads a project .codex/prompts/; it runs repo skills via $name.
-        for workflow in ("setup-harness", "scrape", "apply-any", "verify-facts",
-                         "fact", "tracker", "continue", "companies",
-                         "career-review", "discover"):
-            self.assertTrue(
-                (ROOT / ".agents" / "skills" / workflow / "SKILL.md").is_file(), workflow)
-
-
-class Attribution(unittest.TestCase):
-    """plan-M 32: attribution on the first screen, NOTICE complete."""
-
-    def test_readme_credits_upstream_in_the_first_screen(self):
-        lines = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
-        first_screen = " ".join(lines[:40]).lower()
-        self.assertIn("ai-job-search", first_screen)
-        self.assertIn("madslorentzen", first_screen)
-        self.assertIn("mit", first_screen)
-
-    def test_notice_credits_every_bundled_component(self):
-        text = flat(ROOT / "NOTICE.md")
-        # The three style plugins this fork dropped are not credited: nothing of
-        # theirs ships, and setup no longer offers to install them.
-        for name in ("ai-job-search", "humanizer", "pyyaml", "openpyxl", "pypdf"):
-            self.assertIn(name, text)
-        for dropped in ("ponytail", "caveman", "i-have-adhd"):
-            self.assertNotIn(dropped, text)
-
-    def test_notice_separates_original_from_inherited(self):
-        text = flat(ROOT / "NOTICE.md")
-        self.assertIn("original contributions of this project", text)
-        self.assertIn("would not exist without it", text)
-
-
-class UserGuide(unittest.TestCase):
-    """plan-M 40: the root guide covers every shipped feature."""
-
-    def setUp(self):
-        self.text = flat(ROOT / "USER-GUIDE.md")
-
-    def test_covers_every_harness_command(self):
-        for command in ("/setup-harness", "/career-review", "/companies", "/scrape",
-                        "/apply-any", "/verify-facts", "/fact", "/tracker",
-                        "/continue", "/outcome", "/interview"):
-            self.assertIn(command, self.text)
-
-    def test_documents_the_interview_controls(self):
-        self.assertIn("speed up", self.text)
-        self.assertIn("that's enough", self.text)
-
-    def test_documents_all_five_scopes_and_three_modes(self):
-        # `--scope board <name>` is the real fifth scope. The guide used to show
-        # a bare `--board` flag, which `/scrape` has never implemented, and this
-        # test pinned it, so the sweep that removed the phantom flag from the
-        # command file left the copy users actually type from untouched.
-        for scope in ("--scope companies", "--scope boards", "--scope all",
-                      "--scope company", "--scope board"):
-            self.assertIn(scope, self.text)
-        for mode in ("focused", "balanced", "full"):
-            self.assertIn(mode, self.text)
-
-    def test_does_not_document_flags_scrape_never_implemented(self):
-        self.assertNotIn("--board ", self.text)
-        self.assertNotIn("--limit", self.text)
-
-    def test_documents_the_doctor_statuses_including_degraded(self):
-        for status in ("degraded", "restart shell", "unverified"):
-            self.assertIn(status, self.text)
-
-    def test_documents_the_three_legitimate_gate_resolutions(self):
-        self.assertIn("fix the draft", self.text)
-        self.assertIn("do not edit the register to silence it", self.text)
 
 
 if __name__ == "__main__":

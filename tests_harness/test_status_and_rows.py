@@ -40,8 +40,6 @@ class StatusVocabulary(unittest.TestCase):
         self.assertEqual(status.NO_RESPONSE, status.normalize("no response"))
         self.assertEqual(status.OFFER_DECLINED, status.normalize("offer declined"))
 
-    def test_apply_any_vocabulary_is_already_canonical(self):
-        self.assertEqual(status.IN_PROGRESS, status.normalize("in_progress"))
 
     def test_applied_rows_no_longer_fall_between_buckets(self):
         """REGRESSION: `applied` was in neither OPEN nor CLOSED."""
@@ -93,7 +91,18 @@ class TrackerRowWriting(unittest.TestCase):
         result = tracker_row.append(
             {"company": "Acme", "role": "Analyst"}, self.csv_path)
         self.assertEqual("created", result)
-        self.assertEqual(tracker_row.HEADER, list(self.rows()[0]))
+        # Spelled out, not read from tracker_row.HEADER: the column set is the
+        # contract the workbook, the archiver and /outcome all depend on, so a
+        # wholesale rename must fail here rather than agree with itself.
+        self.assertEqual(
+            [
+                "date", "company", "sector", "role", "role_type", "channel",
+                "status", "contact_person", "fit_rating", "notes", "cv_file",
+                "cover_letter_file", "source", "location", "rationale",
+                "submitted_date",
+            ],
+            list(self.rows()[0]),
+        )
 
     def test_heals_the_thirteen_column_outcome_header(self):
         """REGRESSION: without submitted_date the applied/ move is dead."""

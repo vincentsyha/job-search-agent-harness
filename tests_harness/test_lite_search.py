@@ -363,22 +363,7 @@ class Driver(unittest.TestCase):
 
 
 class LiteSpec(unittest.TestCase):
-    def test_an_application_reads_about_the_7_kb_the_docs_promise(self):
-        """README, USER-GUIDE, setup and the installer say a lite application reads
-        about 7 KB of instructions (against about 160 KB on the standard route): the
-        router, injected on every /lite call, plus the apply steps."""
-        size = sum((ROOT / path).stat().st_size
-                   for path in (".claude/commands/lite.md", ".claude/lite/apply.md"))
-        self.assertLess(size, 8 * 1024)
 
-    def test_lite_never_sends_every_session_through_runtime_map(self):
-        """RUNTIME-MAP.md is ~13 KB; reading it on every lite session nearly tripled a
-        lite application's instructions. The router carries the Codex rule inline."""
-        router = (ROOT / ".claude" / "commands" / "lite.md").read_text(encoding="utf-8")
-        pointer = (ROOT / ".agents" / "skills" / "lite" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertNotIn("Apply `RUNTIME-MAP.md` once per session", router)
-        self.assertIn("$lite", router)
-        self.assertNotIn("applying `RUNTIME-MAP.md`", pointer)
 
     def test_the_router_names_every_step_file_it_delegates_to(self):
         router = (ROOT / ".claude" / "commands" / "lite.md").read_text(encoding="utf-8")

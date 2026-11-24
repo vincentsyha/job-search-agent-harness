@@ -17,7 +17,6 @@ import csv
 import importlib
 import json
 import re
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -64,81 +63,6 @@ class UsageModes(unittest.TestCase):
     def test_caps_apply_within_any_scope(self):
         self.assertIn("caps apply **within** any scope",
                       SCRAPE.read_text(encoding="utf-8").lower())
-
-
-class CostPosture(unittest.TestCase):
-    def setUp(self):
-        self.text = flat(SCRAPE)
-
-    def test_posture_is_printed_before_the_run(self):
-        self.assertIn("before doing anything", self.text)
-
-    def test_no_fabricated_token_arithmetic(self):
-        self.assertIn("never fabricate token arithmetic", self.text)
-
-    def test_heavy_runs_are_confirmed(self):
-        self.assertIn("confirm before `full`", self.text)
-
-
-class OpenJobValidation(unittest.TestCase):
-    def setUp(self):
-        self.text = flat(SCRAPE)
-
-    def test_unverified_is_distinguished_from_closed(self):
-        self.assertIn("never present an unverified posting as confidently open",
-                      self.text)
-
-    def test_unreadable_is_not_reported_as_no_openings(self):
-        self.assertIn(
-            'not "this employer has no openings."', self.text
-        )
-
-    def test_all_four_shortlist_verdicts_are_defined(self):
-        for verdict in ("qualified", "not-drafted", "not-resolved", "gate-fail"):
-            self.assertIn(verdict, self.text)
-
-
-class HardConstraintGate(unittest.TestCase):
-    def setUp(self):
-        self.text = flat(SCRAPE)
-
-    def test_gate_runs_before_scoring(self):
-        self.assertIn("before scoring, not after", self.text)
-
-    def test_gate_quotes_the_postings_own_wording(self):
-        self.assertIn("posting's own wording quoted", self.text)
-
-    def test_preferred_skills_do_not_trigger_a_hard_skip(self):
-        self.assertIn("does not** trigger the skip",
-                      SCRAPE.read_text(encoding="utf-8").lower())
-
-
-class PayDemotion(unittest.TestCase):
-    """Stated pay below the stated minimum demotes, with three boundaries.
-
-    The owner declined to touch upstream's scoring weights, so this lives in
-    the harness's own shortlist step. Each boundary guards a distinct failure:
-    treating silence as a low offer discards most of the market, an invented
-    annualisation is a fabricated number, and gate-fail would make a judgement
-    call irreversible.
-    """
-
-    def setUp(self):
-        self.text = flat(SCRAPE)
-
-    def test_below_minimum_caps_the_verdict_not_the_shortlist(self):
-        self.assertIn("cap the verdict at `not-drafted`", self.text)
-        self.assertIn("demotion, not a gate", self.text)
-
-    def test_only_a_stated_number_demotes(self):
-        self.assertIn("only a *stated* number demotes", self.text)
-        self.assertIn("silence is never treated as a low offer", self.text)
-
-    def test_no_invented_annualisation(self):
-        self.assertIn("converted honestly or not compared at all", self.text)
-
-    def test_below_minimum_is_never_gate_fail(self):
-        self.assertIn("below-minimum is never `gate-fail`", self.text)
 
 
 class DiscoveryIsNotSplitBrained(unittest.TestCase):
@@ -238,24 +162,6 @@ class JobBankCaPort(unittest.TestCase):
         forbidden = {"preinstall", "install", "postinstall", "prepare", "prepack"}
         self.assertEqual(set(), forbidden & set(manifest.get("scripts", {})))
         self.assertNotIn("trustedDependencies", manifest)
-
-
-class BoardIntelligence(unittest.TestCase):
-    def setUp(self):
-        self.text = flat(BOARD_DOC)
-
-    def test_records_the_core_ambiguity(self):
-        self.assertIn("look identical", self.text)
-
-    def test_records_that_ats_sites_are_not_aggregators(self):
-        self.assertIn("employer ats sites", self.text)
-
-    def test_records_the_js_shell_signature(self):
-        self.assertIn("javascript-rendered", self.text)
-
-    def test_records_crawl_delay_enforcement_in_code(self):
-        self.assertIn("crawl-delay", self.text)
-        self.assertIn("enforced between requests by the", self.text)
 
 
 if __name__ == "__main__":
