@@ -61,7 +61,7 @@ the job-scraper skill and its query file (portal glob only), four job-applicatio
 files, the CV template, the cover-letter class (one bold-face line), `AGENTS.md`,
 `CLAUDE.md`, the README, jobindex's `url-reference.md` (its example fetches), and four
 salary-tool files (usage lines only, `python` to `uv run python`).
-Each change and its reason is listed in `docs/REVIEW-HANDOFF.md` §4.1.
+Each change is in the commit that made it.
 
 One documented exception in the tests: `tests/test_readme_assets.py` no longer asserts the
 README contains an image. That assertion encoded upstream's mascot header,
