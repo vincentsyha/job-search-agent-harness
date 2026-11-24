@@ -47,6 +47,17 @@ Screens show the fictional demo candidate, Riley Chen. On Windows 10 or 11:
    app to make changes?": click Yes.
 4. **Double-click the Candor icon** on your Desktop from then on.
 
+**On a Mac**, there is no installer yet. Install Python 3.10 or newer, and Chrome or
+Edge, then run this once in Terminal from the Candor folder:
+
+```
+python3 harness_setup.py
+```
+
+After that, double-click **Candor.command** in the folder to open it, or run
+`./Candor.command`. A Terminal window stays open behind the app while it runs, and
+closing the Candor window stops it, the same as on Windows.
+
 The first time it opens, Candor checks that you have an AI assistant (Claude Code or
 Codex) and that you are signed in, then asks for your CV and five short questions: where
 you can work and whether you are allowed to, your minimum pay, work you refuse, skills a

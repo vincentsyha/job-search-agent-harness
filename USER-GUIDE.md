@@ -16,7 +16,9 @@ why; this is the manual.
 
 Candor is the desktop app over this system. It does everything below through screens
 and buttons, so you never type a command. Install it with **Install Candor** (see the
-README), then open it from the Candor icon. Closing the window stops it after a few
+README), then open it from the Candor icon. On a Mac there is no installer, so run
+`python3 harness_setup.py` once and then double-click **Candor.command** in the folder.
+Closing the window stops it after a few
 minutes; if the assistant is still working on something, it finishes first.
 
 **The first time.** A short setup checks that Claude Code or Codex is installed and
