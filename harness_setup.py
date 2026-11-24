@@ -168,10 +168,9 @@ def section(title: str) -> None:
 def step(message: str) -> None:
     """Say what is about to happen, before a step that takes a while.
 
-    `run()` captures output, so several steps here are silent for minutes —
-    installing dependencies for seven job-board CLIs, and MiKTeX downloading
-    packages on its first compile. With no signal at all, the reasonable
-    conclusion is that it has hung.
+    `run()` captures output, so a step here can be silent for minutes - MiKTeX
+    downloads packages on its first compile. With no signal at all, the
+    reasonable conclusion is that it has hung.
     """
     print(f"  {message}", flush=True)
 
@@ -469,7 +468,7 @@ def check_python_deps() -> Check:
     if missing:
         return Check("Python packages", MISSING,
                      f"not importable: {', '.join(missing)}",
-                     f"{sys.executable} -m pip install -r requirements.txt")
+                     " ".join(pip_install_argv(ROOT / "requirements.txt")))
     return Check("Python packages", OK, "PyYAML, openpyxl, pypdf")
 
 
@@ -747,31 +746,68 @@ def install_python_deps() -> Check:
     if not req.is_file():
         return Check("Python packages", MISSING, "requirements.txt not found")
     step("installing the Python packages (pyyaml, openpyxl, pypdf)")
-    code, out = run([sys.executable, "-m", "pip", "install", "-r", str(req)],
-                    timeout=900)
+    code, out = run(pip_install_argv(req), timeout=900)
     if code != 0:
         return Check("Python packages", MISSING, "pip install failed",
                      out.strip()[-300:])
     return check_python_deps()  # prove it by importing, not by pip's exit code
 
 
-def portal_cli_dirs() -> list[Path]:
-    return sorted(p for p in ROOT.glob(".agents/skills/*/cli") if p.is_dir())
+def pip_install_argv(req: Path) -> list[str]:
+    """uv when it is installed, pip otherwise.
+
+    Measured on 2026-11-24, cold cache, these three wheels: 1.3s with pip, 0.5s
+    with uv. Speed is the smaller reason to prefer it. The larger one is that
+    `uv pip install` works on a Python whose own pip is missing, which is a
+    state `python -m pip` cannot report its way out of.
+    """
+    uv = shutil.which("uv")
+    if uv:
+        return [uv, "pip", "install", "--python", sys.executable, "-r", str(req)]
+    return [sys.executable, "-m", "pip", "install", "-r", str(req)]
+
+
+def portal_cli_dirs(enabled_only: bool = False) -> list[Path]:
+    """Each portal's CLI directory, or only the ones `/scrape` would run."""
+    dirs = sorted(p for p in ROOT.glob(".agents/skills/*/cli") if p.is_dir())
+    if not enabled_only:
+        return dirs
+    try:
+        # Not at module scope: lite_search imports PyYAML, and setup has to run on
+        # the machine where PyYAML is the thing that is missing.
+        from harness.lite_search import discover_boards
+
+        enabled, _ = discover_boards(ROOT)
+    except ImportError:
+        # The toggle cannot be read yet. Preparing every portal is the safe
+        # fallback; this step runs again once the packages are installed.
+        return dirs
+    return [cli for cli in dirs if cli.parent.name in enabled]
 
 
 def install_portal_deps() -> list[Check]:
     bun, stale = find_tool("bun")
-    dirs = portal_cli_dirs()
+    dirs = portal_cli_dirs(enabled_only=True)
+    skipped = [cli.parent.name for cli in portal_cli_dirs() if cli not in dirs]
+    if not dirs and skipped:
+        return [Check("Portal CLIs", OPTIONAL,
+                      f"all {len(skipped)} portals are disabled - nothing to install",
+                      required=False)]
     if not dirs:
         return [Check("Portal CLIs", UNVERIFIED, "no CLI directories found",
-                      "Expected .agents/skills/*/cli — has the tree moved?")]
+                      "Expected .agents/skills/*/cli - has the tree moved?")]
     if not bun or stale:
         return [Check("Portal CLIs", MISSING,
                       f"{len(dirs)} CLIs cannot be prepared without a working Bun",
                       "Fix the Bun row above, then re-run setup.")]
     failed: list[str] = []
-    step(f"installing dependencies for {len(dirs)} job-board tools "
-         f"- this takes a few minutes")
+    step(f"installing dependencies for {len(dirs)} job-board tools")
+    if skipped:
+        # A disabled portal's CLI is not prepared, so enabling one later needs
+        # this run again. Measured cold: 7 portals cost 4.9s and 262MB of cache,
+        # the 3 enabled ones here 0.4s and 29MB.
+        print(f"  skipping {len(skipped)} disabled: {', '.join(skipped)}")
+        print("  re-run setup after you enable one")
     for index, cli in enumerate(dirs, 1):
         step(f"  [{index}/{len(dirs)}] {cli.parent.name}")
         code, out = run([bun, "install"], timeout=600, cwd=cli)

@@ -21,6 +21,7 @@ hit, because those are what a future refactor is most likely to undo:
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -282,6 +283,59 @@ class PlatformHints(unittest.TestCase):
             self.assertNotIn("winget", check.fix)
             self.assertNotIn("apt install", check.fix)
             self.assertIn("brew", check.fix)
+
+
+class PythonInstaller(unittest.TestCase):
+    """uv when it is on PATH, pip otherwise."""
+
+    def test_uv_is_preferred_and_targets_this_python(self):
+        with mock.patch.object(setup.shutil, "which", return_value="/opt/uv"):
+            argv = setup.pip_install_argv(Path("requirements.txt"))
+        self.assertEqual(argv[:3], ["/opt/uv", "pip", "install"])
+        self.assertIn(sys.executable, argv)
+        self.assertIn("requirements.txt", argv)
+
+    def test_pip_when_uv_is_absent(self):
+        with mock.patch.object(setup.shutil, "which", return_value=None):
+            argv = setup.pip_install_argv(Path("requirements.txt"))
+        self.assertEqual(argv[:4], [sys.executable, "-m", "pip", "install"])
+
+
+class PortalInstallScope(unittest.TestCase):
+    """A disabled portal's CLI is not prepared, and setup says which it skipped."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        for name, enabled in (("alpha-search", "true"), ("beta-search", "false")):
+            cli = self.root / ".agents" / "skills" / name / "cli"
+            cli.mkdir(parents=True)
+            (cli.parent / "SKILL.md").write_text(
+                f"---\nname: {name}\nenabled: {enabled}\n---\n", encoding="utf-8")
+
+    def test_enabled_only_filters_the_toggle(self):
+        with mock.patch.object(setup, "ROOT", self.root):
+            self.assertEqual(["alpha-search"],
+                             [p.parent.name for p in setup.portal_cli_dirs(enabled_only=True)])
+            self.assertEqual(["alpha-search", "beta-search"],
+                             [p.parent.name for p in setup.portal_cli_dirs()])
+
+    def test_only_the_enabled_portal_gets_a_bun_install(self):
+        served: list[str] = []
+
+        def record(args, timeout=180, cwd=None):
+            served.append(Path(cwd).parent.name)
+            return 0, ""
+
+        with mock.patch.object(setup, "ROOT", self.root), \
+             mock.patch.object(setup, "find_tool", return_value=("/fake/bun", "")), \
+             mock.patch.object(setup, "run", record), \
+             mock.patch("builtins.print"):
+            checks = setup.install_portal_deps()
+        self.assertEqual(["alpha-search"], served)
+        self.assertEqual(checks[0].status, setup.OK)
+        self.assertIn("1 CLIs", checks[0].detail)
 
 
 class DoctorTable(unittest.TestCase):
