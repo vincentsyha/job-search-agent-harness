@@ -199,6 +199,9 @@ asks a few yes-or-no questions: press Enter for each one. After that, open it wi
 **Candor** icon on your Desktop. If Candor says it cannot find an AI assistant, paste
 that message into the AI program and ask it to fix it.
 
+On a Mac there is no installer yet. Run `python3 harness_setup.py` once, then
+double-click **Candor.command** in the folder; the README's app section has the details.
+
 ![Candor's Today screen, showing one next action and the strongest jobs found](docs/media/candor-today.webp)
 
 The names on that screen belong to a made-up example person, not a real one.
