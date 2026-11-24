@@ -412,10 +412,10 @@ git fetch upstream --tags
 uv run python tools/check_upstream_updates.py
 git checkout -b upstream-merge && git merge v1.4.0
 uv run python tools/security_guards.py && uv run python tools/harness_guards.py
-uv run python -m unittest discover -s tests -t . && uv run python -m unittest discover -s tests_harness -t .
+uv run pytest
 ```
 
-Merge only once the guards and both test suites pass. `check_upstream_updates.py`
+Merge only once the guards and the test suite pass. `check_upstream_updates.py`
 compares frontmatter versions and is **not** tag-aware: it previews, it does not decide.
 
 ---

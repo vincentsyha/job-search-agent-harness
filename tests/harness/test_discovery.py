@@ -22,7 +22,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 SCRAPE = ROOT / ".claude" / "commands" / "scrape.md"
 BOARD_DOC = ROOT / "docs" / "board-intelligence.md"
 JOBBANK = ROOT / ".agents" / "skills" / "jobbank-ca-search"

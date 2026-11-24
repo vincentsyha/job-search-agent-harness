@@ -193,7 +193,7 @@ def check_demo_content_is_confined() -> None:
             continue
         # Upstream's own stock templates and their example files are expected.
         if path.startswith(("cv/", "cover_letters/", "templates/", ".claude/",
-                            "docs/", "tests/", "tests_harness/", "tools/")):
+                            "docs/", "tests/", "tools/")):
             continue
         suspicious.append(path)
     if suspicious:

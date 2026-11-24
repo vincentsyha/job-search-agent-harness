@@ -100,7 +100,7 @@ already in the profile, fix it there too rather than leaving two sources disagre
 Both, every time:
 
 ```
-uv run python -m unittest tests_harness.test_fact_check
+uv run pytest tests/harness/test_fact_check.py
 ```
 
 and a parse check that the register still loads and every entry still carries a source:

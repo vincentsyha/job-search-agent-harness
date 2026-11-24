@@ -34,7 +34,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 CHECKER = ROOT / "harness" / "fact_check.py"
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 # The demo register stands in for a user's real evidence/register.yaml, which

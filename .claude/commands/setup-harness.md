@@ -197,7 +197,7 @@ a rumour. Verify before moving on:
 
 ```
 uv run python -c "import yaml,io; d=yaml.safe_load(io.open('evidence/register.yaml',encoding='utf-8').read()); print('%d sections' % len(d))"
-uv run python -m unittest tests_harness.test_fact_check
+uv run pytest tests/harness/test_fact_check.py
 ```
 
 Then hand the profile-file work to upstream `/setup` (Path A if documents exist, Path B

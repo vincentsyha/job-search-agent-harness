@@ -29,7 +29,7 @@ from pathlib import Path
 
 import yaml
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 COMMANDS = ROOT / ".claude" / "commands"
 
 

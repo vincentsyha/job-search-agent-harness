@@ -21,7 +21,7 @@ package = false
 # here replaces the sys.path.insert line each module used to carry.
 [tool.pytest.ini_options]
 pythonpath = ["harness", "tools", "."]
-testpaths = ["tests", "tests_harness", "tests_app"]
+testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py310"

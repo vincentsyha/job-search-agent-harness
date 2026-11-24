@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPT = REPO_ROOT / "tools" / "check_upstream_updates.py"
 
 TEMPLATE_URL = "https://github.com/MadsLorentzen/ai-job-search.git"

@@ -91,7 +91,7 @@ ADVISORY_PATTERNS = [
 # Files whose whole job is to describe these patterns.
 SELF_REFERENTIAL = {
     "harness/privacy_sweep.py",
-    "tests_harness/test_privacy.py",
+    "tests/harness/test_privacy.py",
 }
 
 SKIP_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".pdf", ".zip", ".xlsx",

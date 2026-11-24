@@ -76,12 +76,11 @@ artifact is archived regardless of whether a live posting is found.
 **Check the text layer before trusting it.** Run `pdftotext -layout <file> -` and compare
 it with what the page looks like. A PDF's embedded text is not always what is printed on
 it: a posting produced by LaTeX, or by an exporter with an incomplete character map,
-extracts glyphs it cannot map as `(cid:NN)` or `U+FFFD`. Measured on the fixture in
-`tests_harness/fixtures/posting_intake/`: 11 of 12 fields extract intact, and the twelfth
-is the salary range — `NOK 780,000–860,000` comes out as `NOK 780,000<?>860,000`, because
-the en dash is the one glyph with no mapping. A range that loses its separator reads as a
-single number, and a single wrong number is exactly the kind of thing that survives into a
-cover letter unchallenged.
+extracts glyphs it cannot map as `(cid:NN)` or `U+FFFD`. The common case is a salary range
+whose en dash has no mapping, so `NOK 780,000-860,000` extracts as
+`NOK 780,000<?>860,000`. A range that loses its separator reads as a single number, and a
+single wrong number is exactly the kind of thing that survives into a cover letter
+unchallenged.
 
 So: if the extraction contains `(cid:` or `U+FFFD`, do not use it as the working text.
 Read the rendered page visually instead, treat it as rung 3, and note in `provenance.md`

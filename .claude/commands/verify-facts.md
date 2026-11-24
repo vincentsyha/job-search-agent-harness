@@ -58,7 +58,7 @@ true:
 |---|---|
 | The claim is genuinely true and the register is simply missing it — **the usual case** | Ask the user to confirm it, record it with `/fact` (which writes it with an `owner-confirmed <date>` source), then re-run. |
 | The draft overstates, invents, or drops a required qualifier | **Fix the draft**, then re-run. |
-| The checker is wrong about a whole class of text | Fix `harness/fact_check.py` **and** add a fixture to `tests_harness/` pinning the corrected behaviour, so the defect cannot return. |
+| The checker is wrong about a whole class of text | Fix `harness/fact_check.py` **and** add a fixture to `tests/harness/` pinning the corrected behaviour, so the defect cannot return. |
 
 **Never** edit `evidence/register.yaml` by hand to make a red line disappear. Never
 weaken a pattern in `fact_check.py` or its config to let one draft through. Never
@@ -114,10 +114,10 @@ not sufficient.
 
 ## Self-test
 
-The checker's own fixtures live in `tests_harness/` (never in upstream's `tests/`):
+The checker's own fixtures live in `tests/harness/` (never in upstream's `tests/`):
 
 ```
-uv run python -m unittest tests_harness.test_fact_check
+uv run pytest tests/harness/test_fact_check.py
 ```
 
 `fixture_bad.txt` must be caught with every planted class named; `fixture_clean.txt`

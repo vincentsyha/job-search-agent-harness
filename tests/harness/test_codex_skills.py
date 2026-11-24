@@ -15,7 +15,7 @@ from pathlib import Path
 
 import yaml
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 MARKER = "Harness workflow pointer"
 # `apply` redirects to /apply-any and `setup` runs inside /setup-harness
 # (RUNTIME-MAP.md §1), so neither gets a pointer.

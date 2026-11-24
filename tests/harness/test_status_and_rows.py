@@ -23,7 +23,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 import rotate_backup  # noqa: E402
 import status  # noqa: E402

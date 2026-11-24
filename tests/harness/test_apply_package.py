@@ -21,14 +21,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 import os
 from unittest import mock
 
 import apply_package  # noqa: E402
 
-from tests_harness.test_ats_check import text_pdf  # noqa: E402
+from tests.support import text_pdf
 
 REGISTER = ROOT / "evidence" / "register.example.yaml"
 

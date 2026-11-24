@@ -23,7 +23,7 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 import today as today_mod  # noqa: E402
 

@@ -90,7 +90,7 @@ class CoverLetterBold(unittest.TestCase):
             from pypdf import PdfReader
         except ImportError:
             self.skipTest("pypdf not installed")
-        source = Path(__file__).resolve().parent.parent / "cover_letters"
+        source = Path(__file__).resolve().parent.parent.parent / "cover_letters"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp) / "cover_letters"
             work.mkdir()
